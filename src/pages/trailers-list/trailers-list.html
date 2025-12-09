@@ -1,0 +1,99 @@
+<section class="page-content list-section">
+  <div class="container list-page-container">
+    <a [routerLink]="['/']" class="back-link">← Back to Home Page</a>
+    <span class="section-label">OUR FLEET</span>
+    <h1 class="section-title">Explore Our Premium Trailer Selection</h1>
+
+    <div class="main-list-layout">
+      <div class="filter-sidebar">
+        <h2>🔍 Filter Trailers</h2>
+        <form (ngSubmit)="applyFilters()">
+          <div class="filter-group">
+            <label for="location">Location:</label>
+            <select
+              id="location"
+              name="location"
+              [(ngModel)]="selectedLocation"
+              class="form-control"
+            >
+              <option value="">All Locations</option>
+              <option *ngFor="let location of availableLocations" [value]="location">
+                {{ location }}
+              </option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="type">Trailer Type:</label>
+            <select id="type" name="type" [(ngModel)]="selectedType" class="form-control">
+              <option value="">All Types</option>
+              <option *ngFor="let type of availableTypes" [value]="type">{{ type }}</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Price Range ($/day):</label>
+            <div class="price-input-group">
+              <input
+                type="number"
+                placeholder="Min Price"
+                [(ngModel)]="minPrice"
+                name="minPrice"
+                class="form-control"
+              />
+              <input
+                type="number"
+                placeholder="Max Price"
+                [(ngModel)]="maxPrice"
+                name="maxPrice"
+                class="form-control"
+              />
+            </div>
+          </div>
+
+          <div class="filter-actions">
+            <button type="submit" class="btn btn-primary btn-block">Apply Filters</button>
+            <button type="button" (click)="clearFilters()" class="btn btn-outline btn-block">
+              Clear Filters
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="trailer-grid-wrapper">
+        <p class="result-count">Showing **{{ filteredTrailers.length }}** results</p>
+
+        <div *ngIf="filteredTrailers.length === 0" class="no-results">
+          <p>Sorry, no trailers match your current filters. Try adjusting your selections.</p>
+        </div>
+
+        <div *ngIf="filteredTrailers.length > 0" class="trailer-grid">
+          <div *ngFor="let trailer of filteredTrailers" class="trailer-card">
+            <div class="card-image-wrapper">[Image of a {{ trailer.type }} trailer]</div>
+
+            <div class="card-content">
+              <h3>{{ trailer.title }}</h3>
+              <p class="tagline">{{ trailer.description | slice : 0 : 70 }}...</p>
+
+              <ul class="quick-specs">
+                <li><span>Type:</span> **{{ trailer.type }}**</li>
+                <li><span>Location:</span> **{{ trailer.location }}**</li>
+              </ul>
+
+              <div class="card-footer">
+                <div class="price-display">
+                  <span class="price-value">${{ trailer.price }}</span>
+                  <span class="price-unit">/ day</span>
+                </div>
+
+                <a [routerLink]="['/trailers', trailer.id]" class="btn btn-primary btn-small">
+                  View Details
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

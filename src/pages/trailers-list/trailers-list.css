@@ -1,0 +1,243 @@
+/* trailers-list/trailers-list.css */
+
+.list-section {
+    padding: var(--section-padding);
+    background: var(--cream); /* Changed to cream for better contrast with sidebar/cards */
+    min-height: 80vh;
+    text-align: center;
+}
+
+.section-title {
+    margin-bottom: 3rem !important;
+}
+
+/* ----------------------------------------
+   Main List Layout (Grid for Sidebar + Content)
+   ---------------------------------------- */
+.main-list-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr; /* Fixed width sidebar, flexible content */
+    gap: 2.5rem;
+    max-width: var(--container-max);
+    margin: 0 auto;
+    text-align: left;
+}
+
+/* ----------------------------------------
+   Filter Sidebar
+   ---------------------------------------- */
+.filter-sidebar {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 5px 20px var(--shadow);
+    height: fit-content; /* Ensure it only takes up necessary height */
+    position: sticky;
+    top: 100px; /* Sticks below the navigation bar */
+}
+
+.filter-sidebar h2 {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--dark);
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.filter-group {
+    margin-bottom: 1.5rem;
+}
+
+.filter-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background-color: var(--cream-dark);
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    outline: none;
+    background-color: var(--white);
+}
+
+.price-input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.price-input-group input {
+    flex: 1;
+}
+
+.filter-actions {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+/* ----------------------------------------
+   Trailer Grid
+   ---------------------------------------- */
+.result-count {
+    font-size: 1rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.result-count strong {
+    color: var(--primary);
+}
+
+.trailer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.no-results {
+    padding: 2rem;
+    background: var(--white);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    text-align: center;
+}
+
+/* Card Styles (Reusing good styles from previous steps) */
+.trailer-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 5px 20px var(--shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.trailer-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.card-image-wrapper {
+    height: 200px;
+    overflow: hidden;
+}
+
+.card-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.card-content {
+    padding: 1.5rem;
+    flex-grow: 1;
+}
+
+.trailer-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 0.25rem;
+}
+
+.tagline {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.quick-specs {
+    list-style: none;
+    padding: 1rem 0;
+    margin: 1rem 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+}
+
+.quick-specs li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+}
+
+.quick-specs span {
+    font-weight: 500;
+    color: var(--primary);
+}
+
+/* Footer (Price and Button) */
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--border);
+}
+
+.price-value {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.price-unit {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* ----------------------------------------
+   Back Link (Styles for the '← Back to Home Page' link)
+   ---------------------------------------- */
+.back-link {
+    display: block;
+    text-align: left;
+    /* Adjusts position relative to the grid */
+    margin-bottom: 2rem;
+    padding-top: 0.5rem;
+
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-muted); /* Ensures it's visible */
+    transition: color 0.2s, transform 0.2s;
+}
+
+.back-link:hover {
+    color: var(--primary);
+    transform: translateX(-5px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .main-list-layout {
+        grid-template-columns: 1fr; /* Stack sidebar and content */
+    }
+    .filter-sidebar {
+        position: static;
+        top: auto;
+        border: 1px solid var(--border);
+    }
+}

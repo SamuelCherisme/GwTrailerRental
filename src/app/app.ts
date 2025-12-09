@@ -1,10 +1,15 @@
+// src/app/app.ts
+
 import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { TrailersList } from "./trailers-list/trailers-list";
+import { RouterOutlet, RouterLink } from '@angular/router'; // <-- RouterLink is REQUIRED
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, TrailersList],
+  standalone: true,
+  imports: [
+    RouterOutlet,
+    RouterLink // <-- This inclusion resolves the routerLinkActiveOptions error
+  ],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

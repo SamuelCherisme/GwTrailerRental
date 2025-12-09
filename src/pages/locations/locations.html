@@ -1,0 +1,25 @@
+<section class="page-content">
+    <div class="container locations-page-container">
+
+        <a [routerLink]="['/']" class="back-link">← Back to Home Page</a>
+
+        <span class="section-label">PICKUP & DROP-OFF</span>
+        <h1 class="section-title">Find a Location Near You</h1>
+
+        <div class="locations-grid">
+
+            <div *ngFor="let location of locationData" class="location-card">
+                <span class="location-icon">📍</span>
+                <h3>{{ location.name }}</h3>
+                <p>{{ location.address }}</p>
+                <div class="location-details">
+                    <span>**Hours:** {{ location.hours }}</span>
+                    <a [href]="location.mapUrl" target="_blank" class="btn btn-primary btn-small">
+                        {{ location.hours === 'By Appointment Only' ? 'View Contact' : 'Get Directions' }}
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>

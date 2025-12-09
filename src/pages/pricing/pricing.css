@@ -1,0 +1,198 @@
+/* pages/pricing/pricing.css */
+
+.page-content {
+    padding: var(--section-padding);
+    /* Changed background to white for contrast against cards */
+    background: var(--white);
+    min-height: 80vh;
+    text-align: center;
+}
+
+.pricing-page-container {
+    padding-top: 0;
+}
+
+/* ----------------------------------------
+   Back Link
+   ---------------------------------------- */
+.back-link {
+    display: block;
+    text-align: left;
+    margin-bottom: 2rem;
+    padding-top: 2rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: color 0.2s, transform 0.2s;
+}
+
+.back-link:hover {
+    color: var(--primary);
+    transform: translateX(-5px);
+}
+
+/* ----------------------------------------
+   Pricing Grid Layout
+   ---------------------------------------- */
+.section-title {
+    margin-bottom: 4rem !important;
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* ----------------------------------------
+   Pricing Card Styles
+   ---------------------------------------- */
+.pricing-card {
+    /* Changed background to light cream for differentiation */
+    background: var(--cream);
+    padding: 2.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 5px 20px var(--shadow);
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.pricing-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    border-color: var(--primary-light); /* Highlight border on hover */
+}
+
+.pricing-card h3 {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--dark);
+}
+
+.pricing-card p {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+}
+
+.price {
+    font-family: var(--font-display);
+    font-size: 3rem; /* Made price larger */
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 2rem;
+    line-height: 1;
+}
+
+.price span {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    font-family: var(--font-body);
+}
+
+/* Featured Card (Enclosed Cargo) */
+.pricing-card.featured {
+    background: var(--dark-800); /* Darker background */
+    color: var(--white);
+    padding: 3rem 2.5rem;
+    transform: scale(1.07); /* Increased scaling for impact */
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    border-color: var(--primary); /* Strong primary border */
+}
+
+.pricing-card.featured:hover {
+    transform: translateY(-8px) scale(1.07);
+}
+
+.pricing-card.featured .section-label {
+    background: var(--accent);
+    color: var(--dark);
+}
+
+.pricing-card.featured h3 {
+    color: var(--white);
+    font-size: 1.9rem;
+}
+
+.pricing-card.featured p {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.pricing-card.featured .price {
+    color: var(--accent);
+    font-size: 3.5rem; /* Larger price in featured card */
+}
+
+.pricing-card.featured .price span {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.2rem;
+}
+
+/* Feature List */
+.features-list {
+    list-style: none;
+    text-align: left;
+    margin-bottom: 2.5rem;
+    padding-left: 0;
+}
+
+.features-list li {
+    padding: 0.6rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+    border-bottom: 1px dashed var(--border); /* Added subtle border */
+    color: var(--text);
+}
+
+.features-list li:last-child {
+    border-bottom: none;
+}
+
+.features-list li::before {
+    content: '✓';
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.pricing-card.featured .features-list li {
+    color: rgba(255, 255, 255, 0.9);
+    border-bottom-color: rgba(255, 255, 255, 0.15);
+}
+
+.pricing-card.featured .features-list li::before {
+    content: '★'; /* Star icon for featured features */
+    color: var(--accent);
+}
+
+/* ----------------------------------------
+   Responsive Adjustments
+   ---------------------------------------- */
+@media (max-width: 1024px) {
+    .pricing-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .pricing-card.featured {
+        transform: scale(1); /* Reduce scaling */
+        order: -1;
+    }
+    .pricing-card.featured:hover {
+        transform: translateY(-5px) scale(1);
+    }
+}
+
+@media (max-width: 768px) {
+    .pricing-grid {
+        grid-template-columns: 1fr; /* Stack cards vertically */
+    }
+    .pricing-card {
+        padding: 2rem;
+    }
+}
