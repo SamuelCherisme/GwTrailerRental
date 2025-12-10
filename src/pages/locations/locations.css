@@ -1,4 +1,6 @@
-/* pages/locations/locations.css */
+/* ----------------------------------------
+   Locations Page Styles
+   ---------------------------------------- */
 
 .page-content {
     padding: var(--section-padding);
@@ -49,7 +51,6 @@
     padding: 2.5rem;
     border-radius: var(--radius-lg);
     box-shadow: 0 5px 20px var(--shadow);
-    border-left: 5px solid var(--primary); /* Accent border */
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
