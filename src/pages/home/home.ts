@@ -4,7 +4,10 @@ import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-// The 'signal' import is now correctly omitted as it's not used here
+
+// 1. IMPORT THE AUTH SERVICE
+// (Ensure you have created src/app/auth.service.ts as discussed)
+import { AuthService } from '../../app/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -26,6 +29,10 @@ export class Home implements OnInit, OnDestroy {
   minDate = new Date().toISOString().split('T')[0];
   searchForm = { pickup: '', dropoff: '', date: '' };
   private autoPlayInterval: any;
+
+  // 2. INJECT THE AUTH SERVICE
+  // We use 'public' so the HTML template can access 'auth.isLoggedIn()' directly
+  constructor(public auth: AuthService) {}
 
   get currentSlide() {
     return this.slides[this.currentIndex];

@@ -1,21 +1,31 @@
-<!-- NAVBAR -->
 <nav class="navbar">
-  <div class="nav-container">
-    <a routerLink="/" class="logo">
-      <span class="logo-icon">GW</span>
-      <span class="logo-text"> Trailer Rentals</span>
-    </a>
-    <div class="nav-links">
-      <a routerLink="/" class="nav-link">Home</a>
-      <a routerLink="/trailers" class="nav-link">Trailers</a>
-      <a routerLink="/pricing" class="nav-link">Pricing</a>
-      <a routerLink="/locations" class="nav-link">Locations</a>
+    <div class="nav-container">
+        <a routerLink="/" class="logo">
+            <span class="logo-icon">GW</span>
+            <span class="logo-text"> Trailer Rentals</span>
+        </a>
+        <div class="nav-links">
+            <a routerLink="/" class="nav-link">Home</a>
+            <a routerLink="/trailers" class="nav-link">Trailers</a>
+            <a routerLink="/pricing" class="nav-link">Pricing</a>
+            <a routerLink="/locations" class="nav-link">Locations</a>
+        </div>
+
+     <div class="nav-actions">
+    <ng-container *ngIf="!auth.isLoggedIn()">
+        <a routerLink="/login" class="btn btn-outline">Sign In</a>
+        <a routerLink="/signup" class="btn btn-primary">Get Started</a>
+    </ng-container>
+
+    <ng-container *ngIf="auth.isLoggedIn()">
+        <span style="margin-right: 15px; color: #fff; font-weight: 500;">
+            Hello, {{ auth.currentUser()?.name || auth.currentUser()?.email }}
+        </span>
+        <button (click)="auth.logout()" class="btn btn-outline">Sign Out</button>
+    </ng-container>
+</div>
+
     </div>
-    <div class="nav-actions">
-      <a routerLink="/login" class="btn btn-outline">Sign In</a>
-      <a routerLink="/signup" class="btn btn-primary">Get Started</a>
-    </div>
-  </div>
 </nav>
 
 <!-- HERO -->
