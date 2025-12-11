@@ -1,65 +1,96 @@
-// src/pages/signup/signup.ts (UPDATED FOR FULL REGISTRATION)
+// src/pages/signup/signup.ts
 
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common'; // Needed for any *ngIf logic
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../app/auth.service';
 
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [FormsModule, CommonModule],
-  template: `
-    <div class="page-content container" style="max-width: 400px; padding-top: 120px;">
-      <h2>Create an Account</h2>
-      <form (ngSubmit)="handleSignup()">
-        <p *ngIf="error" style="color: red; margin-bottom: 10px;">{{ error }}</p>
-
-        <div class="form-group" style="margin-bottom: 1rem;">
-          <label>Full Name</label>
-          <input type="text" [(ngModel)]="name" name="name" class="form-input" required style="width: 100%; padding: 10px;">
-        </div>
-
-        <div class="form-group" style="margin-bottom: 1rem;">
-          <label>Email</label>
-          <input type="email" [(ngModel)]="email" name="email" class="form-input" required style="width: 100%; padding: 10px;">
-        </div>
-
-        <div class="form-group" style="margin-bottom: 1rem;">
-          <label>Password</label>
-          <input type="password" [(ngModel)]="password" name="password" class="form-input" required style="width: 100%; padding: 10px;">
-        </div>
-
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Get Started</button>
-      </form>
-    </div>
-  `
+  imports: [FormsModule, CommonModule, RouterLink],
+  templateUrl: './Signup.html',
+  styleUrls: ['../../styles/auth.css'],
 })
 export class Signup {
   email = '';
   password = '';
+  confirmPassword = '';
   name = '';
+  showPassword = false;
+  showConfirmPassword = false;
+  agreeToTerms = false;
+  isLoading = false;
   error: string | null = null;
+  passwordStrength = 0;
+  passwordStrengthText = '';
 
   constructor(private auth: AuthService) {}
+
+  get passwordsMatch(): boolean {
+    return this.password === this.confirmPassword && this.confirmPassword.length > 0;
+  }
+
+  checkPasswordStrength() {
+    let strength = 0;
+
+    if (this.password.length >= 6) strength++;
+    if (this.password.length >= 10) strength++;
+    if (/[A-Z]/.test(this.password) && /[a-z]/.test(this.password)) strength++;
+    if (/[0-9]/.test(this.password)) strength++;
+    if (/[^A-Za-z0-9]/.test(this.password)) strength++;
+
+    this.passwordStrength = Math.min(strength, 4);
+
+    if (this.passwordStrength <= 1) {
+      this.passwordStrengthText = 'Weak';
+    } else if (this.passwordStrength === 2) {
+      this.passwordStrengthText = 'Fair';
+    } else if (this.passwordStrength === 3) {
+      this.passwordStrengthText = 'Good';
+    } else {
+      this.passwordStrengthText = 'Strong';
+    }
+  }
 
   handleSignup() {
     this.error = null;
 
-    // Check for basic password strength (optional but recommended)
+    if (!this.name.trim()) {
+      this.error = 'Please enter your full name.';
+      return;
+    }
+
+    if (!this.email.trim()) {
+      this.error = 'Please enter your email address.';
+      return;
+    }
+
     if (this.password.length < 6) {
       this.error = 'Password must be at least 6 characters long.';
       return;
     }
 
-    // Call the updated register method from the service
-    const success = this.auth.register(this.email, this.password, this.name);
-
-    if (!success) {
-      // This will catch the 'Email already exists' error from the AuthService
-      this.error = 'Registration failed. This email may already be in use.';
+    if (this.password !== this.confirmPassword) {
+      this.error = 'Passwords do not match.';
+      return;
     }
 
-    // If successful, the AuthService will handle the navigation to '/profile'
+    if (!this.agreeToTerms) {
+      this.error = 'You must agree to the Terms of Service.';
+      return;
+    }
+
+    this.isLoading = true;
+
+    setTimeout(() => {
+      const success = this.auth.register(this.email, this.password, this.name);
+
+      if (!success) {
+        this.error = 'Registration failed. This email may already be in use.';
+      }
+      this.isLoading = false;
+    }, 500);
   }
 }
