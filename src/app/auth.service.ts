@@ -1,8 +1,6 @@
-// src/app/auth.service.ts
-
 import { Injectable, signal, PLATFORM_ID, Inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { isPlatformBrowser } from '@angular/common'; // Used for SSR safety
+import { isPlatformBrowser } from '@angular/common';
 
 interface User {
   email: string;
@@ -14,6 +12,7 @@ interface User {
 })
 export class AuthService {
   currentUser = signal<User | null>(null);
+  isReady = signal<boolean>(false);
 
   private readonly USER_DB_KEY = 'gw_user_database';
   private readonly LOGGED_IN_KEY = 'gw_current_user_email';
@@ -25,17 +24,19 @@ export class AuthService {
     if (isPlatformBrowser(this.platformId)) {
       this.checkSessionOnStart();
     }
+    this.isReady.set(true);
   }
 
   // === PUBLIC METHODS ===
 
-  public isLoggedIn() {
+  public isLoggedIn(): boolean {
     return this.currentUser() !== null;
   }
 
-  // New public method for navigation fix
   public redirectToLogin() {
-    this.router.navigate(['/login']);
+    this.router.navigate(['/login']).then(success => {
+      console.log('Navigation to /login:', success ? 'succeeded' : 'failed');
+    });
   }
 
   public register(email: string, password: string, name: string): boolean {
@@ -47,9 +48,14 @@ export class AuthService {
 
     users[email] = { email, password, name };
     this.saveAllUsers(users);
-
     this.saveSession(email);
-    this.router.navigate(['/profile']);
+
+    console.log('Registration successful, currentUser:', this.currentUser());
+
+    this.router.navigate(['/profile']).then(success => {
+      console.log('Navigation to /profile:', success ? 'succeeded' : 'failed');
+    });
+
     return true;
   }
 
@@ -57,13 +63,21 @@ export class AuthService {
     const users = this.getAllUsers();
     const storedUser = users[email];
 
+    console.log('Login attempt for:', email);
+    console.log('Stored users:', users);
+
     if (storedUser && storedUser.password === password) {
       this.saveSession(email);
-      this.router.navigate(['/profile']);
+
+      console.log('Login successful, currentUser:', this.currentUser());
+
+      this.router.navigate(['/profile']).then(success => {
+        console.log('Navigation to /profile:', success ? 'succeeded' : 'failed');
+      });
+
       return true;
     }
 
-    this.logout();
     console.error('Login failed: Invalid credentials.');
     return false;
   }
@@ -76,12 +90,14 @@ export class AuthService {
     this.router.navigate(['/']);
   }
 
-  // === PRIVATE UTILITY METHODS (SSR SAFE) ===
+  // === PRIVATE UTILITY METHODS ===
 
   private checkSessionOnStart() {
     const email = localStorage.getItem(this.LOGGED_IN_KEY);
+    console.log('Session check - stored email:', email);
     if (email) {
       const user = this.getUserFromDB(email);
+      console.log('Session check - found user:', user);
       if (user) {
         this.currentUser.set(user);
       }
@@ -93,6 +109,7 @@ export class AuthService {
       localStorage.setItem(this.LOGGED_IN_KEY, email);
     }
     const user = this.getUserFromDB(email);
+    console.log('saveSession - setting currentUser:', user);
     this.currentUser.set(user);
   }
 
