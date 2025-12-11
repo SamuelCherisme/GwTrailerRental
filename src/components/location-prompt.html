@@ -1,0 +1,67 @@
+<div class="location-prompt-overlay" *ngIf="locationService.showPrompt()">
+  <div class="location-prompt-card">
+    <!-- Close button -->
+    <button class="close-btn" (click)="dismiss()" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <!-- Icon -->
+    <div class="prompt-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+        <circle cx="12" cy="10" r="3"/>
+      </svg>
+    </div>
+
+    <!-- Content -->
+    <h3>Enable Location Services</h3>
+    <p>Allow GW Rentals to access your location to find trailers and pickup locations near you.</p>
+
+    <!-- Benefits -->
+    <ul class="benefits-list">
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <span>Find nearest pickup locations</span>
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <span>Get local pricing & availability</span>
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <span>Faster booking experience</span>
+      </li>
+    </ul>
+
+    <!-- Buttons -->
+    <div class="prompt-actions">
+      <button
+        class="btn btn-primary"
+        (click)="allowLocation()"
+        [disabled]="locationService.locationStatus() === 'requesting'"
+      >
+        <span *ngIf="locationService.locationStatus() !== 'requesting'">Allow Location</span>
+        <span *ngIf="locationService.locationStatus() === 'requesting'" class="loading-spinner"></span>
+      </button>
+      <button class="btn btn-ghost" (click)="dismiss()">Not Now</button>
+    </div>
+
+    <!-- Privacy note -->
+    <p class="privacy-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      Your location is only used to improve your experience and is never shared.
+    </p>
+  </div>
+</div>

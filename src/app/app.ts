@@ -1,7 +1,11 @@
+// src/app/app.ts
+
 import { Component, signal } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './auth.service';
+import { LocationService } from './location.service';
+import { LocationPrompt } from '../components/location-prompt';
 
 @Component({
   selector: 'app-root',
@@ -9,14 +13,18 @@ import { AuthService } from './auth.service';
   imports: [
     RouterOutlet,
     RouterLink,
-    CommonModule, // Required for *ngIf in the navbar
+    CommonModule,
+    LocationPrompt
   ],
   templateUrl: './app.html',
-  styleUrl: './app.css',
+  styleUrls: ['./app.css']
 })
 export class App {
   protected readonly title = signal('gw-rental-app');
   currentYear = new Date().getFullYear();
 
-  constructor(public auth: AuthService) {}
+  constructor(
+    public auth: AuthService,
+    public locationService: LocationService
+  ) {}
 }
