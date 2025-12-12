@@ -90,17 +90,6 @@ A modern trailer rental application built with Angular 20 and Node.js/Express ba
    npm install
 ```
 
-### Environment Setup
-
-Create a `.env` file in `backend/server/`:
-```env
-MONGODB_URI=mongodb+srv://USERNAME:PASSWORD@cluster.mongodb.net/gw-rentals
-RESEND_API_KEY=re_your_api_key
-JWT_SECRET=your-secret-key
-JWT_REFRESH_SECRET=your-refresh-secret-key
-FRONTEND_URL=http://localhost:4200
-PORT=3000
-```
 
 > ⚠️ Never commit your `.env` file. It's included in `.gitignore`.
 
@@ -196,33 +185,4 @@ gw-rental-app/
 
 ---
 
-## 📸 Screenshots
 
-> Add screenshots of your app here
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 👤 Author
-
-**Your Name**
-- GitHub: [@your-username](https://github.com/your-username)
-
----
-
-<p align="center">Made with ❤️ using Angular & Node.js</p>
