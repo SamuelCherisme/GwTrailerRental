@@ -328,7 +328,7 @@
    ======================================== */
 .btn-submit {
   width: 100%;
-  padding: 16px;
+  /* padding: 16px; */
   background: linear-gradient(135deg, #d63031 0%, #b71c1c 100%);
   border: none;
   border-radius: 12px;
@@ -452,7 +452,7 @@
 }
 
 .auth-footer a {
-  color: #d63031;
+  color: #fff;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s ease;
