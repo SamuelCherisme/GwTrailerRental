@@ -8,15 +8,19 @@ import { Login } from '../pages/Login/Login';
 import { Signup } from '../pages/SignUp/SignUp';
 import { Profile } from '../pages/Profile/Profile';
 import { ForgotPassword } from '../pages/ForgotPassword/Forgot-password';
+import { ResetPassword } from '../pages/reset-password/reset-password';
+import { VerifyEmail } from '../pages/verify-email/verify-email';
 
 export const routes: Routes = [
     { path: '', component: Home, title: 'Home | Trailer Rentals' },
 
     // Auth Routes
-    { path: 'login', component: Login, title: 'Sign In | Trailer Rentals' },
-    { path: 'signup', component: Signup, title: 'Sign Up | Trailer Rentals' },
-    { path: 'profile', component: Profile, title: 'User Profile | Trailer Rentals' },
-    { path: 'forgot-password', component: ForgotPassword, title: 'Reset Password | Trailer Rentals' },
+     { path: 'login', component: Login, title: 'Sign In | GW Trailer Rentals' },
+    { path: 'signup', component: Signup, title: 'Sign Up | GW Trailer Rentals' },
+    { path: 'profile', component: Profile, title: 'My Profile | GW Trailer Rentals' },
+    { path: 'forgot-password', component: ForgotPassword, title: 'Reset Password | GW Trailer Rentals' },
+    { path: 'verify-email', component: VerifyEmail, title: 'Verify Email | GW Trailer Rentals' },
+    { path: 'reset-password', component: ResetPassword, title: 'Set New Password | GW Trailer Rentals' },
 
     // Existing App Routes
     { path: 'trailers', component: TrailersList, title: 'Our Fleet | Trailer Rentals' },

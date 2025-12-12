@@ -1,9 +1,7 @@
-// src/pages/login/login.ts
-
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../app/auth.service';
 
 @Component({
@@ -18,21 +16,51 @@ export class Login {
   password = '';
   showPassword = false;
   rememberMe = false;
-  isLoading = false;
   error: string | null = null;
+  needsVerification = false;
 
-  constructor(private auth: AuthService) {}
+  constructor(
+    public auth: AuthService,
+    private router: Router
+  ) {
+    // Redirect if already logged in
+    if (this.auth.isLoggedIn()) {
+      this.router.navigate(['/profile']);
+    }
+  }
 
   handleLogin() {
     this.error = null;
-    this.isLoading = true;
+    this.needsVerification = false;
 
-    setTimeout(() => {
-      const success = this.auth.login(this.email, this.password);
-      if (!success) {
-        this.error = 'Invalid email or password. Please try again.';
+    if (!this.email || !this.password) {
+      this.error = 'Please enter your email and password.';
+      return;
+    }
+
+    this.auth.login(this.email, this.password).subscribe(response => {
+      if (response.success) {
+        this.router.navigate(['/profile']);
+      } else {
+        this.error = response.message;
+        this.needsVerification = response.needsVerification || false;
       }
-      this.isLoading = false;
-    }, 500);
+    });
+  }
+
+  resendVerification() {
+    if (!this.email) {
+      this.error = 'Please enter your email address.';
+      return;
+    }
+
+    this.auth.resendVerification(this.email).subscribe(response => {
+      if (response.success) {
+        this.error = null;
+        alert('Verification email sent! Please check your inbox.');
+      } else {
+        this.error = response.message;
+      }
+    });
   }
 }

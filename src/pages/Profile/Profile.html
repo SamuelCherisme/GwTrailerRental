@@ -1,0 +1,179 @@
+<div class="profile-page">
+  <!-- Loading state -->
+  <div *ngIf="!auth.isReady()" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading...</p>
+  </div>
+
+  <!-- Main content -->
+  <div *ngIf="auth.isReady()" class="profile-container">
+
+    <!-- Not logged in -->
+    <div *ngIf="!auth.isLoggedIn()" class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <h2>Access Denied</h2>
+      <p>Please sign in to view your profile</p>
+      <a routerLink="/login" class="btn btn-primary">Sign In</a>
+    </div>
+
+    <!-- Logged in -->
+    <div *ngIf="auth.isLoggedIn()" class="profile-content">
+
+     <!-- Header -->
+<div class="profile-header">
+  <div class="avatar">{{ getInitials() }}</div>
+  <div class="header-info">
+    @if (auth.currentUser(); as user) {
+      <h1>Welcome back, {{ user.name.split(' ')[0] }}!</h1>
+    } @else {
+      <h1>Welcome back!</h1>
+    }
+    <p>Manage your account and view your rental history</p>
+  </div>
+</div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon rentals">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="1" y="3" width="15" height="13"/>
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+              <circle cx="5.5" cy="18.5" r="2.5"/>
+              <circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">0</span>
+            <span class="stat-label">Active Rentals</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon history">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">0</span>
+            <span class="stat-label">Past Rentals</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon savings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">$0</span>
+            <span class="stat-label">Total Saved</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Details Card -->
+      <div class="details-card">
+        <div class="card-header">
+          <h2>Account Details</h2>
+          <button class="btn-edit" (click)="toggleEdit()">
+            <svg *ngIf="!isEditing" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            <span>{{ isEditing ? 'Cancel' : 'Edit' }}</span>
+          </button>
+        </div>
+
+        <div class="details-grid">
+          <div class="detail-item">
+            <label>Full Name</label>
+            <div *ngIf="!isEditing" class="detail-value">{{ auth.currentUser()?.name || 'Not set' }}</div>
+            <input *ngIf="isEditing" type="text" [(ngModel)]="editName" placeholder="Enter your name">
+          </div>
+
+          <div class="detail-item">
+            <label>Email Address</label>
+            <div class="detail-value">{{ auth.currentUser()?.email }}</div>
+          </div>
+
+          <div class="detail-item">
+            <label>Account Status</label>
+            <div class="detail-value">
+              <span class="status-badge">
+                <span class="status-dot"></span>
+                {{ auth.currentUser()?.isVerified ? 'Verified' : 'Pending Verification' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <label>Member Since</label>
+            <div class="detail-value">{{ getMemberDate() }}</div>
+          </div>
+        </div>
+
+        <div *ngIf="isEditing" class="edit-actions">
+          <button class="btn btn-primary" (click)="saveChanges()">Save Changes</button>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="actions-card">
+        <h2>Quick Actions</h2>
+        <div class="actions-grid">
+          <a routerLink="/trailers" class="action-item">
+            <div class="action-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="3" width="15" height="13"/>
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                <circle cx="5.5" cy="18.5" r="2.5"/>
+                <circle cx="18.5" cy="18.5" r="2.5"/>
+              </svg>
+            </div>
+            <span>Browse Trailers</span>
+          </a>
+
+          <a routerLink="/locations" class="action-item">
+            <div class="action-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+            </div>
+            <span>Find Locations</span>
+          </a>
+
+          <a routerLink="/pricing" class="action-item">
+            <div class="action-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+            </div>
+            <span>View Pricing</span>
+          </a>
+
+          <button class="action-item logout" (click)="logout()">
+            <div class="action-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+            </div>
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

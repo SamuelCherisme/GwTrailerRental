@@ -1,17 +1,15 @@
-// src/pages/signup/signup.ts
-
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../app/auth.service';
 
 @Component({
   selector: 'app-signup',
   standalone: true,
   imports: [FormsModule, CommonModule, RouterLink],
-  templateUrl: './Signup.html',
-  styleUrls: ['../../styles/auth.css'],
+  templateUrl: './signup.html',
+  styleUrls: ['../../styles/auth.css']
 })
 export class Signup {
   email = '';
@@ -21,12 +19,20 @@ export class Signup {
   showPassword = false;
   showConfirmPassword = false;
   agreeToTerms = false;
-  isLoading = false;
   error: string | null = null;
+  success = false;
   passwordStrength = 0;
   passwordStrengthText = '';
 
-  constructor(private auth: AuthService) {}
+  constructor(
+    public auth: AuthService,
+    private router: Router
+  ) {
+    // Redirect if already logged in
+    if (this.auth.isLoggedIn()) {
+      this.router.navigate(['/profile']);
+    }
+  }
 
   get passwordsMatch(): boolean {
     return this.password === this.confirmPassword && this.confirmPassword.length > 0;
@@ -56,6 +62,7 @@ export class Signup {
 
   handleSignup() {
     this.error = null;
+    this.success = false;
 
     if (!this.name.trim()) {
       this.error = 'Please enter your full name.';
@@ -82,15 +89,13 @@ export class Signup {
       return;
     }
 
-    this.isLoading = true;
-
-    setTimeout(() => {
-      const success = this.auth.register(this.email, this.password, this.name);
-
-      if (!success) {
-        this.error = 'Registration failed. This email may already be in use.';
+    this.auth.register(this.name, this.email, this.password).subscribe(response => {
+      if (response.success) {
+        this.success = true;
+        this.error = null;
+      } else {
+        this.error = response.message;
       }
-      this.isLoading = false;
-    }, 500);
+    });
   }
 }
