@@ -34,8 +34,8 @@
                 </div>
 
                 <div class="booking-actions">
-                    <button class="btn btn-primary btn-large">Book Now</button>
-                    <button class="btn btn-outline btn-large">Check Availability</button>
+                    <a [routerLink]="['/booking']" [queryParams]="{ trailerId: trailer.id }" class="btn btn-primary btn-large">Book Now</a>
+                    <a [routerLink]="['/booking']" [queryParams]="{ trailerId: trailer.id }" class="btn btn-outline btn-large">Check Availability</a>
                 </div>
 
                 <div class="guarantee-block">
