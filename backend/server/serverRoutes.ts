@@ -10,6 +10,14 @@ import {
   logout,
   getCurrentUser
 } from './controllers/auth.controller';
+import {
+  createBooking,
+  getUserBookings,
+  getBooking,
+  cancelBooking,
+  checkAvailability,
+  getUnavailableDates
+} from './controllers/booking.controller';
 import { protect } from './middleware/auth.middleware';
 
 const router = Router();
@@ -23,7 +31,8 @@ router.get('/', (req, res) => {
     version: '1.0.0',
     endpoints: {
       auth: '/api/auth/*',
-      trailers: '/api/trailers'
+      trailers: '/api/trailers',
+      bookings: '/api/bookings'
     }
   });
 });
@@ -45,12 +54,75 @@ router.get('/api/auth/me', protect, getCurrentUser);
 // TRAILER ROUTES
 // ============================================
 const trailers = [
-  { id: 1, title: 'Trailer A', location: 'Atlanta', type: 'Utility', price: 200, description: 'Lightweight utility trailer' },
-  { id: 2, title: 'Trailer B', location: 'Dallas', type: 'Flatbed', price: 300, description: 'Heavy-duty flatbed trailer' },
-  { id: 3, title: 'Trailer C', location: 'Atlanta', type: 'Enclosed', price: 400, description: 'Secure enclosed trailer' },
-  { id: 4, title: 'Trailer D', location: 'Miami', type: 'Utility', price: 150, description: 'Compact utility trailer' },
+  {
+    id: 1,
+    name: 'Utility Trailer',
+    title: 'Utility Trailer',
+    location: 'Atlanta',
+    type: 'Utility',
+    price: 200,
+    dailyRate: 200,
+    description: 'Lightweight utility trailer perfect for everyday hauling. Great for moving furniture, yard waste, or small equipment.',
+    tagline: 'Perfect for everyday hauling',
+    size: '5x8 ft',
+    capacity: 2000,
+    axles: 1,
+    minRentalDays: 1,
+    features: ['Ramp gate', 'Tie-down points', 'LED lights'],
+    imageUrl: '/assets/trailers/utility.jpg'
+  },
+  {
+    id: 2,
+    name: 'Flatbed Trailer',
+    title: 'Flatbed Trailer',
+    location: 'Dallas',
+    type: 'Flatbed',
+    price: 300,
+    dailyRate: 300,
+    description: 'Heavy-duty flatbed trailer built for serious loads. Ideal for vehicles, machinery, and construction materials.',
+    tagline: 'Built for heavy-duty jobs',
+    size: '8x16 ft',
+    capacity: 7000,
+    axles: 2,
+    minRentalDays: 1,
+    features: ['Steel deck', 'Stake pockets', 'Tie-down rings', 'Adjustable ramps'],
+    imageUrl: '/assets/trailers/flatbed.jpg'
+  },
+  {
+    id: 3,
+    name: 'Enclosed Trailer',
+    title: 'Enclosed Trailer',
+    location: 'Atlanta',
+    type: 'Enclosed',
+    price: 400,
+    dailyRate: 400,
+    description: 'Secure enclosed trailer for weather protection and security. Perfect for valuable cargo, tools, or long-distance moves.',
+    tagline: 'Maximum protection for your cargo',
+    size: '7x14 ft',
+    capacity: 5000,
+    axles: 2,
+    minRentalDays: 1,
+    features: ['Lockable doors', 'Interior lighting', 'E-track system', 'Side door'],
+    imageUrl: '/assets/trailers/enclosed.jpg'
+  },
+  {
+    id: 4,
+    name: 'Compact Utility Trailer',
+    title: 'Compact Utility Trailer',
+    location: 'Miami',
+    type: 'Utility',
+    price: 150,
+    dailyRate: 150,
+    description: 'Compact utility trailer for light loads. Easy to tow with any vehicle, perfect for small projects.',
+    tagline: 'Small but mighty',
+    size: '4x6 ft',
+    capacity: 1000,
+    axles: 1,
+    minRentalDays: 1,
+    features: ['Fold-down gate', 'Compact design', 'Easy hookup'],
+    imageUrl: '/assets/trailers/utility-compact.jpg'
+  },
 ];
-
 router.get('/api/trailers', (req, res) => {
   let filtered = [...trailers];
   const { location, type, minPrice, maxPrice } = req.query;
@@ -69,6 +141,16 @@ router.get('/api/trailers/:id', (req, res) => {
   if (!trailer) return res.status(404).json({ error: 'Trailer not found' });
   res.json(trailer);
 });
+
+// ============================================
+// BOOKING ROUTES
+// ============================================
+router.post('/api/bookings', protect, createBooking);
+router.get('/api/bookings', protect, getUserBookings);
+router.get('/api/bookings/:id', protect, getBooking);
+router.patch('/api/bookings/:id/cancel', protect, cancelBooking);
+router.get('/api/availability', checkAvailability);
+router.get('/api/trailers/:trailerId/unavailable-dates', getUnavailableDates);
 
 // ============================================
 // CONTACT ROUTE
