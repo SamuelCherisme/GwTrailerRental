@@ -1,50 +1,205 @@
-<section class="page-content">
-    <div class="container pricing-page-container">
-
-        <a [routerLink]="['/']" class="back-link">← Back to Home Page</a>
-
-        <span class="section-label">AFFORDABLE RATES</span>
-        <h1 class="section-title">Simple, Transparent Pricing</h1>
-
-        <div class="pricing-grid">
-
-            <div class="pricing-card">
-                <h3>Utility Trailer</h3>
-                <p>Small jobs & light hauling.</p>
-                <div class="price">$49<span>/day</span></div>
-                <ul class="features-list">
-                    <li>5x8ft single axle</li>
-                    <li>2,000 lbs capacity</li>
-                    <li>Open sides</li>
-                </ul>
-                <a routerLink="/trailers" class="btn btn-outline" style="width: 100%;">Select Trailer</a>
-            </div>
-
-            <div class="pricing-card featured">
-                <span class="section-label">Most Popular</span>
-                <h3>Enclosed Cargo</h3>
-                <p>Secure transport for goods.</p>
-                <div class="price">$79<span>/day</span></div>
-                <ul class="features-list">
-                    <li>7x16ft tandem axle</li>
-                    <li>7,000 lbs capacity</li>
-                    <li>Ramp door & lights</li>
-                </ul>
-                <a routerLink="/trailers" class="btn btn-primary btn-large" style="width: 100%;">Book Now</a>
-            </div>
-
-            <div class="pricing-card">
-                <h3>Equipment/Flatbed</h3>
-                <p>Heavy machinery & vehicles.</p>
-                <div class="price">$99<span>/day</span></div>
-                <ul class="features-list">
-                    <li>18ft tandem axle</li>
-                    <li>10,000 lbs capacity</li>
-                    <li>Heavy-duty ramps</li>
-                </ul>
-                <a routerLink="/trailers" class="btn btn-outline" style="width: 100%;">Select Trailer</a>
-            </div>
-
-        </div>
+<nav class="navbar">
+  <div class="nav-container">
+    <a routerLink="/" class="logo">
+      <span class="logo-icon">GW</span>
+      <span class="logo-text">Trailer Rentals</span>
+    </a>
+    <div class="nav-links">
+      <a routerLink="/" class="nav-link">Home</a>
+      <a routerLink="/trailers" class="nav-link">Trailers</a>
+      <a routerLink="/pricing" class="nav-link active">Pricing</a>
+      <a routerLink="/locations" class="nav-link">Locations</a>
     </div>
+    <div class="nav-actions">
+      @if (!auth.isLoggedIn()) {
+        <a routerLink="/login" class="btn btn-outline">Sign In</a>
+        <a routerLink="/signup" class="btn btn-primary">Get Started</a>
+      }
+      @if (auth.isLoggedIn()) {
+        <a routerLink="/my-bookings" class="btn btn-ghost">My Bookings</a>
+        <a routerLink="/profile" class="user-greeting">
+          <span class="user-avatar">{{ getInitials() }}</span>
+          <span class="user-name">{{ auth.currentUser()?.name || 'Account' }}</span>
+        </a>
+        <button (click)="auth.logout()" class="btn btn-outline">Sign Out</button>
+      }
+    </div>
+  </div>
+</nav>
+
+<!-- HERO SECTION -->
+<section class="pricing-hero">
+  <div class="hero-content">
+    <span class="section-label">TRANSPARENT PRICING</span>
+    <h1>Simple Pricing for Every Job</h1>
+    <p>No hidden fees. No surprises. Just honest rates for quality trailers.</p>
+  </div>
 </section>
+
+<!-- PRICING CARDS -->
+<section class="pricing-section">
+  <div class="pricing-container">
+
+    <div class="pricing-grid">
+      @for (plan of pricingPlans; track plan.name) {
+        <div class="pricing-card" [class.featured]="plan.featured">
+          @if (plan.featured) {
+            <div class="featured-badge">Most Popular</div>
+          }
+          <div class="card-header">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="3" width="15" height="13"/>
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                <circle cx="5.5" cy="18.5" r="2.5"/>
+                <circle cx="18.5" cy="18.5" r="2.5"/>
+              </svg>
+            </div>
+            <h3>{{ plan.name }}</h3>
+            <p class="plan-desc">{{ plan.description }}</p>
+          </div>
+
+          <div class="price-block">
+            <span class="price-from">Starting at</span>
+            <div class="price">
+              <span class="currency">$</span>
+              <span class="amount">{{ plan.price }}</span>
+              <span class="period">/day</span>
+            </div>
+          </div>
+
+          <ul class="features-list">
+            @for (feature of plan.features; track feature) {
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                {{ feature }}
+              </li>
+            }
+          </ul>
+
+          <a [routerLink]="['/trailers']" [queryParams]="{ type: plan.type }"
+             class="btn" [class.btn-primary]="plan.featured" [class.btn-outline]="!plan.featured">
+            {{ plan.featured ? 'Book Now' : 'View Trailers' }}
+          </a>
+        </div>
+      }
+    </div>
+
+  </div>
+</section>
+
+<!-- ADDITIONAL INFO -->
+<section class="info-section">
+  <div class="info-container">
+    <div class="info-grid">
+
+      <div class="info-card">
+        <div class="info-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <h3>Insurance Included</h3>
+        <p>Basic liability coverage included with every rental. Additional coverage available.</p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <h3>Flexible Terms</h3>
+        <p>Daily, weekly, and monthly rates available. Longer rentals get bigger discounts.</p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"/>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <h3>No Hidden Fees</h3>
+        <p>The price you see is the price you pay. Transparent pricing, always.</p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+        <h3>One-Way Rentals</h3>
+        <p>Pick up at one location, drop off at another. Flexibility when you need it.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- DISCOUNT BANNER -->
+<section class="discount-section">
+  <div class="discount-container">
+    <div class="discount-content">
+      <h2>Save More on Longer Rentals</h2>
+      <p>Get up to 30% off weekly and monthly bookings</p>
+    </div>
+    <div class="discount-grid">
+      <div class="discount-card">
+        <span class="discount-value">10%</span>
+        <span class="discount-label">3+ Days</span>
+      </div>
+      <div class="discount-card">
+        <span class="discount-value">20%</span>
+        <span class="discount-label">Weekly</span>
+      </div>
+      <div class="discount-card">
+        <span class="discount-value">30%</span>
+        <span class="discount-label">Monthly</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2>Ready to Get Started?</h2>
+  <p>Browse our selection and book your trailer today.</p>
+  <a routerLink="/trailers" class="btn btn-primary btn-large">Browse All Trailers →</a>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-brand">
+      <span class="logo-icon">GW</span>
+      <span class="logo-text">RENTALS</span>
+      <p>Premium trailer rentals for every haul.</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a routerLink="/about">About</a>
+        <a routerLink="/contact">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h4>Services</h4>
+        <a routerLink="/trailers">Trailers</a>
+        <a routerLink="/pricing">Pricing</a>
+        <a routerLink="/locations">Locations</a>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <a routerLink="/faq">FAQ</a>
+        <a routerLink="/terms">Terms</a>
+        <a routerLink="/privacy">Privacy</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">© {{ currentYear }} GW Rentals. All rights reserved.</div>
+</footer>

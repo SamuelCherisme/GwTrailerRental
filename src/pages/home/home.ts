@@ -1,11 +1,7 @@
-
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-
-// 1. IMPORT THE AUTH SERVICE
-// (Ensure you have created src/app/auth.service.ts as discussed)
 import { AuthService } from '../../app/auth.service';
 
 @Component({
@@ -18,27 +14,51 @@ import { AuthService } from '../../app/auth.service';
 export class Home implements OnInit, OnDestroy {
 
   slides = [
-    { image: 'https://imgs.search.brave.com/0-xx-a1yRamkfPKIRjQTZBN63wFH5WpiG7HqMsv8kyY/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93YWxs/cGFwZXJzLmNvbS9p/bWFnZXMvZmVhdHVy/ZWQvcGlja3VwLXRy/dWNrLWh3emdsNmJp/bTJob2xmZjMuanBn', caption: 'Flatbed Trailer - Rent Today' },
-    { image: 'https://imgs.search.brave.com/Ff04WWwBOQpwERX8Bl2DIV1103680Z-SfQupil9dsJE/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/ZnJlZS1waG90by92/ZWhpY2xlLW1vdmVf/MjMtMjE1MTg0NjAz/NS5qcGc_c2VtdD1h/aXNfaHlicmlkJnc9/NzQwJnE9ODA', caption: 'Enclosed Trailer - Safe and Secure' },
-    { image: 'https://imgs.search.brave.com/_EsU0xDnN8UdPnYRbz7jhOa_HFnVzhDAwfxh74brWSA/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzA3LzUwLzAyLzk2/LzM2MF9GXzc1MDAy/OTY3OV92V2NjT1FI/SzRadlliR1VoVFBy/d0REbWpMUExHaDB3/US5qcGc', caption: 'Utility Trailer - Ready for Work' }
+    { image: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800', caption: 'Flatbed Trailer - Rent Today' },
+    { image: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800', caption: 'Enclosed Trailer - Safe and Secure' },
+    { image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800', caption: 'Utility Trailer - Ready for Work' }
   ];
 
   currentIndex = 0;
   currentYear = new Date().getFullYear();
   minDate = new Date().toISOString().split('T')[0];
-  searchForm = { pickup: '', dropoff: '', date: '' };
+
+  // Search form fields
+  searchLocation = '';
+  searchType = '';
+  searchPickupDate = '';
+  searchReturnDate = '';
+
   private autoPlayInterval: any;
 
-  // 2. INJECT THE AUTH SERVICE
-  // We use 'public' so the HTML template can access 'auth.isLoggedIn()' directly
-  constructor(public auth: AuthService) {}
+  constructor(
+    public auth: AuthService,
+    private router: Router
+  ) {}
 
   get currentSlide() {
     return this.slides[this.currentIndex];
   }
 
+  getInitials(): string {
+    const name = this.auth.currentUser()?.name;
+    if (!name) return '?';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    return name.substring(0, 2).toUpperCase();
+  }
+
   onSearch() {
-    console.log('Search:', this.searchForm);
+    // Build query params
+    const queryParams: any = {};
+
+    if (this.searchLocation) queryParams.location = this.searchLocation;
+    if (this.searchType) queryParams.type = this.searchType;
+    if (this.searchPickupDate) queryParams.pickupDate = this.searchPickupDate;
+    if (this.searchReturnDate) queryParams.returnDate = this.searchReturnDate;
+
+    // Navigate to trailers page with filters
+    this.router.navigate(['/trailers'], { queryParams });
   }
 
   nextSlide() {

@@ -11,20 +11,21 @@
             <a routerLink="/locations" class="nav-link">Locations</a>
         </div>
 
-     <div class="nav-actions">
-    <ng-container *ngIf="!auth.isLoggedIn()">
-        <a routerLink="/login" class="btn btn-outline">Sign In</a>
-        <a routerLink="/signup" class="btn btn-primary">Get Started</a>
-    </ng-container>
+        <div class="nav-actions">
+            @if (!auth.isLoggedIn()) {
+                <a routerLink="/login" class="btn btn-outline">Sign In</a>
+                <a routerLink="/signup" class="btn btn-primary">Get Started</a>
+            }
 
-    <ng-container *ngIf="auth.isLoggedIn()">
-        <span style="margin-right: 15px; color: #fff; font-weight: 500;">
-            Hello, {{ auth.currentUser()?.name || auth.currentUser()?.email }}
-        </span>
-        <button (click)="auth.logout()" class="btn btn-outline">Sign Out</button>
-    </ng-container>
-</div>
-
+            @if (auth.isLoggedIn()) {
+                <a routerLink="/my-bookings" class="btn btn-ghost">My Bookings</a>
+                <a routerLink="/profile" class="user-greeting">
+                    <span class="user-avatar">{{ getInitials() }}</span>
+                    <span class="user-name">{{ auth.currentUser()?.name || 'Account' }}</span>
+                </a>
+                <button (click)="auth.logout()" class="btn btn-outline">Sign Out</button>
+            }
+        </div>
     </div>
 </nav>
 
@@ -45,7 +46,7 @@
       </div>
       <div class="hero-stats">
         <div class="stat"><span class="stat-value">15+</span><span class="stat-label">Trailers</span></div>
-        <div class="stat"><span class="stat-value">2+</span><span class="stat-label">Locations</span></div>
+        <div class="stat"><span class="stat-value">6</span><span class="stat-label">Locations</span></div>
         <div class="stat"><span class="stat-value">24/7</span><span class="stat-label">Support</span></div>
       </div>
     </div>
@@ -59,36 +60,39 @@
 <section class="search-section">
   <div class="search-container">
     <h2 class="search-title">Find Your Trailer</h2>
-    <form class="search-form">
+    <form class="search-form" (ngSubmit)="onSearch()">
       <div class="form-group">
-        <label>Pickup Location</label>
-        <select class="form-select">
-          <option value="">Select location</option>
-          <option value="atlanta">Atlanta, GA</option>
-          <option value="dallas">Dallas, TX</option>
-          <option value="charlotte">Charlotte, NC</option>
-          <option value="miami">Miami, FL</option>
+        <label>Location</label>
+        <select class="form-select" [(ngModel)]="searchLocation" name="location">
+          <option value="">All Locations</option>
+          <option value="Atlanta">Atlanta, GA</option>
+          <option value="Dallas">Dallas, TX</option>
+          <option value="Charlotte">Charlotte, NC</option>
+          <option value="Miami">Miami, FL</option>
+          <option value="Houston">Houston, TX</option>
+          <option value="Phoenix">Phoenix, AZ</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Drop-off Location</label>
-        <select class="form-select">
-          <option value="">Select location</option>
-          <option value="atlanta">Atlanta, GA</option>
-          <option value="dallas">Dallas, TX</option>
-          <option value="charlotte">Charlotte, NC</option>
-          <option value="miami">Miami, FL</option>
+        <label>Trailer Type</label>
+        <select class="form-select" [(ngModel)]="searchType" name="type">
+          <option value="">All Types</option>
+          <option value="Utility">Utility</option>
+          <option value="Enclosed">Enclosed</option>
+          <option value="Flatbed">Flatbed</option>
+          <option value="Dump">Dump</option>
+          <option value="Specialty">Specialty</option>
         </select>
       </div>
       <div class="form-group">
         <label>Pickup Date</label>
-        <input type="date" class="form-input"/>
+        <input type="date" class="form-input" [(ngModel)]="searchPickupDate" name="pickupDate" [min]="minDate"/>
       </div>
       <div class="form-group">
         <label>Return Date</label>
-        <input type="date" class="form-input"/>
+        <input type="date" class="form-input" [(ngModel)]="searchReturnDate" name="returnDate" [min]="searchPickupDate || minDate"/>
       </div>
-      <button type="submit" class="btn btn-primary">Search</button>
+      <button type="submit" class="btn btn-primary">Search Trailers</button>
     </form>
   </div>
 </section>
@@ -125,7 +129,7 @@
       <div class="process-card">
         <div class="card-number">01</div>
         <h3>Choose Location</h3>
-        <p>Select from 15+ pickup locations across the Southeast.</p>
+        <p>Select from 6 pickup locations across the country.</p>
       </div>
       <div class="process-card">
         <div class="card-number">02</div>

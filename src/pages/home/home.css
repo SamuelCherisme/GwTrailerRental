@@ -997,3 +997,84 @@ a { text-decoration: none; color: inherit; }
     transform: translateY(0);
   }
 }
+
+/* ========================================
+   NAVBAR USER SECTION FIX
+   ======================================== */
+.user-greeting {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px 6px 6px;
+  background: var(--cream);
+  border-radius: 100px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.user-greeting:hover {
+  background: var(--cream-dark);
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+/* Fix nav-actions button visibility */
+.nav-actions .btn-outline {
+  color: var(--dark);
+  border-color: var(--border);
+}
+
+.nav-actions .btn-outline:hover {
+  background: var(--dark);
+  color: white;
+  border-color: var(--dark);
+}
+
+.nav-actions .btn-ghost {
+  color: var(--text);
+  background: transparent;
+}
+
+.nav-actions .btn-ghost:hover {
+  background: var(--cream);
+  color: var(--primary);
+}
+
+/* ========================================
+   RESPONSIVE NAV ACTIONS
+   ======================================== */
+@media (max-width: 768px) {
+  .user-greeting {
+    padding: 6px;
+  }
+
+  .user-name {
+    display: none;
+  }
+
+  .nav-actions {
+    gap: 0.5rem;
+  }
+
+  .nav-actions .btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+}

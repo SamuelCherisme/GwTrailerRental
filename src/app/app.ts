@@ -28,3 +28,4 @@ export class App {
     public locationService: LocationService
   ) {}
 }
+
