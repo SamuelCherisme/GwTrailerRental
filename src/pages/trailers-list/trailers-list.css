@@ -1,3 +1,21 @@
+.card-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.btn-small {
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
 /* trailers-list/trailers-list.css */
 
 .list-section {

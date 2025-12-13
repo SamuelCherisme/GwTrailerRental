@@ -84,9 +84,14 @@
                   <span class="price-unit">/ day</span>
                 </div>
 
-                <a [routerLink]="['/trailers', trailer.id]" class="btn btn-primary btn-small">
-                  View Details
-                </a>
+                <div class="card-buttons">
+                  <a [routerLink]="['/trailers', trailer.id]" class="btn btn-outline btn-small">
+                    View Details
+                  </a>
+                  <a [routerLink]="['/booking']" [queryParams]="{ trailerId: trailer.id }" class="btn btn-primary btn-small">
+                    Book Now
+                  </a>
+                </div>
               </div>
             </div>
           </div>

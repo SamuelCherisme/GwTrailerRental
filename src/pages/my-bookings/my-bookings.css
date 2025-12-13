@@ -2,6 +2,7 @@
   min-height: 100vh;
   background: linear-gradient(180deg, #faf6f0 0%, #fff 50%);
   padding: 40px 20px;
+  padding-top: 100px; /* Add space for fixed navbar */
 }
 
 .bookings-container {
@@ -374,8 +375,6 @@
   text-decoration: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-bottom: -100px;
-
 }
 
 .btn-primary {
