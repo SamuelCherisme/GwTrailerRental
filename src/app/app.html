@@ -3,30 +3,28 @@
   <div class="nav-container">
     <a routerLink="/" class="logo">
       <span class="logo-icon">GW</span>
-      <span class="logo-text"> Trailer Rentals</span>
+      <span class="logo-text">Trailer Rentals</span>
     </a>
     <div class="nav-links">
-      <a routerLink="/" class="nav-link">Home</a>
-      <a routerLink="/trailers" class="nav-link">Trailers</a>
-      <a routerLink="/pricing" class="nav-link">Pricing</a>
-      <a routerLink="/locations" class="nav-link">Locations</a>
+      <a routerLink="/" [routerLinkActive]="'force-active'" [routerLinkActiveOptions]="{ exact: true }" class="nav-link">Home</a>
+      <a routerLink="/trailers" [routerLinkActive]="'force-active'" class="nav-link">Trailers</a>
+      <a routerLink="/pricing" [routerLinkActive]="'force-active'" class="nav-link">Pricing</a>
+      <a routerLink="/locations" [routerLinkActive]="'force-active'" class="nav-link">Locations</a>
     </div>
 
     <div class="nav-actions">
-      <!-- Show when NOT logged in -->
-      <ng-container *ngIf="!auth.isLoggedIn()">
+      @if (!auth.isLoggedIn()) {
         <a routerLink="/login" class="btn btn-outline">Sign In</a>
         <a routerLink="/signup" class="btn btn-primary">Get Started</a>
-      </ng-container>
-
-      <!-- Show when logged in -->
-      <ng-container *ngIf="auth.isLoggedIn()">
-        <span style="margin-right: 15px; color: #fff; font-weight: 500;">
-          Hello, {{ auth.currentUser()?.name || auth.currentUser()?.email }}
-        </span>
-        <a routerLink="/profile" class="btn btn-outline" style="margin-right: 10px;">Profile</a>
-        <button (click)="auth.logout()" class="btn btn-primary">Sign Out</button>
-      </ng-container>
+      }
+      @if (auth.isLoggedIn()) {
+        <a routerLink="/my-bookings" class="btn btn-ghost">My Bookings</a>
+        <a routerLink="/profile" class="user-greeting">
+          <span class="user-avatar">{{ getInitials() }}</span>
+          <span class="user-name">{{ auth.currentUser()?.name || 'Account' }}</span>
+        </a>
+        <button (click)="auth.logout()" class="btn btn-outline">Sign Out</button>
+      }
     </div>
   </div>
 </nav>
