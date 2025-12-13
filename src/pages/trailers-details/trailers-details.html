@@ -3,50 +3,65 @@
 
         <a [routerLink]="['/trailers']" class="back-link">← Back to All Trailers</a>
 
-        <div *ngIf="trailer" class="main-content-grid">
+        @if (trailer(); as t) {
+            <div class="main-content-grid">
 
-            <div class="image-specs-col">
-                <div class="trailer-image-placeholder">
-                    <img [src]="trailer.imageUrl || 'assets/default-trailer.jpg'" [alt]="trailer.name">
+                <div class="image-specs-col">
+                    <div class="trailer-image-placeholder">
+                        <img [src]="t.imageUrl || 'assets/default-trailer.jpg'" [alt]="t.name">
+                    </div>
+
+                    <div class="spec-list">
+                        <h2>Key Specifications</h2>
+                        <ul>
+                            <li><span class="spec-label">Model:</span> {{ t.name }}</li>
+                            <li><span class="spec-label">Type:</span> {{ t.type }}</li>
+                            <li><span class="spec-label">Size:</span> {{ t.size }}</li>
+                            <li><span class="spec-label">Capacity:</span> {{ t.capacity }} lbs</li>
+                            <li><span class="spec-label">Axles:</span> {{ t.axles }}</li>
+                            @for (feature of t.features; track feature) {
+                                <li><span class="spec-label">Feature:</span> {{ feature }}</li>
+                            }
+                        </ul>
+                    </div>
                 </div>
 
-                <div class="spec-list">
-                    <h2>Key Specifications</h2>
-                    <ul>
-                        <li><span class="spec-label">Model:</span> {{ trailer.name }}</li>
-                        <li><span class="spec-label">Size:</span> {{ trailer.size }}</li>
-                        <li><span class="spec-label">Capacity:</span> {{ trailer.capacity }} lbs</li>
-                        <li><span class="spec-label">Axles:</span> {{ trailer.axles }}</li>
-                        <li *ngFor="let feature of trailer.features"><span class="spec-label">Feature:</span> {{ feature }}</li>
-                    </ul>
+                <div class="description-booking-col">
+                    <h1 class="trailer-title">{{ t.name }}</h1>
+                    <p class="tagline">{{ t.tagline }}</p>
+
+                    <p class="description">{{ t.description }}</p>
+
+                    <div class="price-block">
+                        <span class="price-label">Daily Rental Rate</span>
+                        <div class="price">${{ t.dailyRate }}<span>/day</span></div>
+                    </div>
+
+                    <div class="booking-actions">
+                        <a [routerLink]="['/booking']" [queryParams]="{ trailerId: t.id }" class="btn btn-primary btn-large">Book Now</a>
+                        <a [routerLink]="['/booking']" [queryParams]="{ trailerId: t.id }" class="btn btn-outline btn-large">Check Availability</a>
+                    </div>
+
+                    <div class="guarantee-block">
+                        <p>✓ Minimum Rental Period: {{ t.minRentalDays }} Day(s)</p>
+                        <p>✓ Located in: {{ t.location }}</p>
+                    </div>
                 </div>
             </div>
+        }
 
-            <div class="description-booking-col">
-                <h1 class="trailer-title">{{ trailer.name }}</h1>
-                <p class="tagline">{{ trailer.tagline }}</p>
-
-                <p class="description">{{ trailer.description }}</p>
-
-                <div class="price-block">
-                    <span class="price-label">Daily Rental Rate</span>
-                    <div class="price">${{ trailer.dailyRate }}<span>/day</span></div>
-                </div>
-
-                <div class="booking-actions">
-                    <a [routerLink]="['/booking']" [queryParams]="{ trailerId: trailer.id }" class="btn btn-primary btn-large">Book Now</a>
-                    <a [routerLink]="['/booking']" [queryParams]="{ trailerId: trailer.id }" class="btn btn-outline btn-large">Check Availability</a>
-                </div>
-
-                <div class="guarantee-block">
-                    <p>✓ Minimum Rental Period: {{ trailer.minRentalDays }} Days</p>
-                    <p>✓ Located in: {{ trailer.location }}</p>
-                </div>
+        @if (isLoading()) {
+            <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Loading trailer details...</p>
             </div>
-        </div>
+        }
 
-        <div *ngIf="!trailer" class="loading-state">
-            <p>Loading trailer details...</p>
-        </div>
+        @if (error()) {
+            <div class="error-state">
+                <p>{{ error() }}</p>
+                <a [routerLink]="['/trailers']" class="btn btn-primary">Back to Trailers</a>
+            </div>
+        }
     </div>
 </section>

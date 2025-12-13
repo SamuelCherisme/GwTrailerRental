@@ -15,9 +15,9 @@
               class="form-control"
             >
               <option value="">All Locations</option>
-              <option *ngFor="let location of availableLocations" [value]="location">
-                {{ location }}
-              </option>
+              @for (location of availableLocations; track location) {
+                <option [value]="location">{{ location }}</option>
+              }
             </select>
           </div>
 
@@ -25,7 +25,9 @@
             <label for="type">Trailer Type:</label>
             <select id="type" name="type" [(ngModel)]="selectedType" class="form-control">
               <option value="">All Types</option>
-              <option *ngFor="let type of availableTypes" [value]="type">{{ type }}</option>
+              @for (type of availableTypes; track type) {
+                <option [value]="type">{{ type }}</option>
+              }
             </select>
           </div>
 
@@ -59,43 +61,60 @@
       </div>
 
       <div class="trailer-grid-wrapper">
-        <p class="result-count">Showing **{{ filteredTrailers.length }}** results</p>
-
-        <div *ngIf="filteredTrailers.length === 0" class="no-results">
-          <p>Sorry, no trailers match your current filters. Try adjusting your selections.</p>
-        </div>
-
-        <div *ngIf="filteredTrailers.length > 0" class="trailer-grid">
-          <div *ngFor="let trailer of filteredTrailers" class="trailer-card">
-            <div class="card-image-wrapper">[Image of a {{ trailer.type }} trailer]</div>
-
-            <div class="card-content">
-              <h3>{{ trailer.title }}</h3>
-              <p class="tagline">{{ trailer.description | slice : 0 : 70 }}...</p>
-
-              <ul class="quick-specs">
-                <li><span>Type:</span> **{{ trailer.type }}**</li>
-                <li><span>Location:</span> **{{ trailer.location }}**</li>
-              </ul>
-
-              <div class="card-footer">
-                <div class="price-display">
-                  <span class="price-value">${{ trailer.price }}</span>
-                  <span class="price-unit">/ day</span>
-                </div>
-
-                <div class="card-buttons">
-                  <a [routerLink]="['/trailers', trailer.id]" class="btn btn-outline btn-small">
-                    View Details
-                  </a>
-                  <a [routerLink]="['/booking']" [queryParams]="{ trailerId: trailer.id }" class="btn btn-primary btn-small">
-                    Book Now
-                  </a>
-                </div>
-              </div>
-            </div>
+        @if (isLoading()) {
+          <div class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Loading trailers...</p>
           </div>
-        </div>
+        }
+
+        @if (!isLoading()) {
+          <p class="result-count">Showing {{ filteredTrailers().length }} results</p>
+
+          @if (filteredTrailers().length === 0) {
+            <div class="no-results">
+              <p>Sorry, no trailers match your current filters. Try adjusting your selections.</p>
+            </div>
+          }
+
+          @if (filteredTrailers().length > 0) {
+            <div class="trailer-grid">
+              @for (trailer of filteredTrailers(); track trailer.id) {
+                <div class="trailer-card">
+                  <div class="card-image-wrapper">
+                    <img [src]="trailer.imageUrl || 'assets/default-trailer.jpg'" [alt]="trailer.name">
+                  </div>
+
+                  <div class="card-content">
+                    <h3>{{ trailer.name || trailer.title }}</h3>
+                    <p class="tagline">{{ trailer.description | slice : 0 : 70 }}...</p>
+
+                    <ul class="quick-specs">
+                      <li><span>Type:</span> {{ trailer.type }}</li>
+                      <li><span>Location:</span> {{ trailer.location }}</li>
+                    </ul>
+
+                    <div class="card-footer">
+                      <div class="price-display">
+                        <span class="price-value">${{ trailer.price }}</span>
+                        <span class="price-unit">/ day</span>
+                      </div>
+
+                      <div class="card-buttons">
+                        <a [routerLink]="['/trailers', trailer.id]" class="btn btn-outline btn-small">
+                          View Details
+                        </a>
+                        <a [routerLink]="['/booking']" [queryParams]="{ trailerId: trailer.id }" class="btn btn-primary btn-small">
+                          Book Now
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        }
       </div>
     </div>
   </div>
