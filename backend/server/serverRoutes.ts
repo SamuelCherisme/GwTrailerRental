@@ -19,6 +19,7 @@ import {
   getUnavailableDates
 } from './controllers/booking.controller';
 import { protect } from './middleware/auth.middleware';
+import { trailers, getTrailerById, getLocations, getTypes } from './data/trailers';
 
 const router = Router();
 
@@ -53,93 +54,67 @@ router.get('/api/auth/me', protect, getCurrentUser);
 // ============================================
 // TRAILER ROUTES
 // ============================================
-const trailers = [
-  {
-    id: 1,
-    name: 'Utility Trailer',
-    title: 'Utility Trailer',
-    location: 'Atlanta',
-    type: 'Utility',
-    price: 200,
-    dailyRate: 200,
-    description: 'Lightweight utility trailer perfect for everyday hauling. Great for moving furniture, yard waste, or small equipment.',
-    tagline: 'Perfect for everyday hauling',
-    size: '5x8 ft',
-    capacity: 2000,
-    axles: 1,
-    minRentalDays: 1,
-    features: ['Ramp gate', 'Tie-down points', 'LED lights'],
-    imageUrl: '/assets/trailers/utility.jpg'
-  },
-  {
-    id: 2,
-    name: 'Flatbed Trailer',
-    title: 'Flatbed Trailer',
-    location: 'Dallas',
-    type: 'Flatbed',
-    price: 300,
-    dailyRate: 300,
-    description: 'Heavy-duty flatbed trailer built for serious loads. Ideal for vehicles, machinery, and construction materials.',
-    tagline: 'Built for heavy-duty jobs',
-    size: '8x16 ft',
-    capacity: 7000,
-    axles: 2,
-    minRentalDays: 1,
-    features: ['Steel deck', 'Stake pockets', 'Tie-down rings', 'Adjustable ramps'],
-    imageUrl: '/assets/trailers/flatbed.jpg'
-  },
-  {
-    id: 3,
-    name: 'Enclosed Trailer',
-    title: 'Enclosed Trailer',
-    location: 'Atlanta',
-    type: 'Enclosed',
-    price: 400,
-    dailyRate: 400,
-    description: 'Secure enclosed trailer for weather protection and security. Perfect for valuable cargo, tools, or long-distance moves.',
-    tagline: 'Maximum protection for your cargo',
-    size: '7x14 ft',
-    capacity: 5000,
-    axles: 2,
-    minRentalDays: 1,
-    features: ['Lockable doors', 'Interior lighting', 'E-track system', 'Side door'],
-    imageUrl: '/assets/trailers/enclosed.jpg'
-  },
-  {
-    id: 4,
-    name: 'Compact Utility Trailer',
-    title: 'Compact Utility Trailer',
-    location: 'Miami',
-    type: 'Utility',
-    price: 150,
-    dailyRate: 150,
-    description: 'Compact utility trailer for light loads. Easy to tow with any vehicle, perfect for small projects.',
-    tagline: 'Small but mighty',
-    size: '4x6 ft',
-    capacity: 1000,
-    axles: 1,
-    minRentalDays: 1,
-    features: ['Fold-down gate', 'Compact design', 'Easy hookup'],
-    imageUrl: '/assets/trailers/utility-compact.jpg'
-  },
-];
 router.get('/api/trailers', (req, res) => {
   let filtered = [...trailers];
-  const { location, type, minPrice, maxPrice } = req.query;
+  const { location, type, minPrice, maxPrice, search } = req.query;
 
-  if (location) filtered = filtered.filter(t => t.location.toLowerCase() === (location as string).toLowerCase());
-  if (type) filtered = filtered.filter(t => t.type.toLowerCase() === (type as string).toLowerCase());
-  if (minPrice) filtered = filtered.filter(t => t.price >= Number(minPrice));
-  if (maxPrice) filtered = filtered.filter(t => t.price <= Number(maxPrice));
+  // Filter by location
+  if (location) {
+    filtered = filtered.filter(t =>
+      t.location.toLowerCase() === (location as string).toLowerCase()
+    );
+  }
+
+  // Filter by type
+  if (type) {
+    filtered = filtered.filter(t =>
+      t.type.toLowerCase() === (type as string).toLowerCase()
+    );
+  }
+
+  // Filter by min price
+  if (minPrice) {
+    filtered = filtered.filter(t => t.price >= Number(minPrice));
+  }
+
+  // Filter by max price
+  if (maxPrice) {
+    filtered = filtered.filter(t => t.price <= Number(maxPrice));
+  }
+
+  // Search by name or description
+  if (search) {
+    const searchTerm = (search as string).toLowerCase();
+    filtered = filtered.filter(t =>
+      t.name.toLowerCase().includes(searchTerm) ||
+      t.description.toLowerCase().includes(searchTerm) ||
+      t.type.toLowerCase().includes(searchTerm)
+    );
+  }
 
   res.json(filtered);
 });
 
+// Get single trailer
 router.get('/api/trailers/:id', (req, res) => {
   const id = Number(req.params.id);
-  const trailer = trailers.find(t => t.id === id);
-  if (!trailer) return res.status(404).json({ error: 'Trailer not found' });
+  const trailer = getTrailerById(id);
+
+  if (!trailer) {
+    return res.status(404).json({ error: 'Trailer not found' });
+  }
+
   res.json(trailer);
+});
+
+// Get available locations
+router.get('/api/locations', (req, res) => {
+  res.json(getLocations());
+});
+
+// Get available types
+router.get('/api/types', (req, res) => {
+  res.json(getTypes());
 });
 
 // ============================================

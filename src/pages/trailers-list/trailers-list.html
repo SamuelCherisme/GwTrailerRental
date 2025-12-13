@@ -1,13 +1,43 @@
 <section class="page-content list-section">
   <div class="container list-page-container">
-    <h1 class="section-title">Explore Our Premium Trailer Selection</h1>
+
+    <!-- Hero Header -->
+    <div class="page-hero">
+      <h1 class="section-title">Explore Our Premium Trailer Selection</h1>
+      <p class="section-subtitle">Find the perfect trailer for your hauling needs</p>
+
+      <!-- Search Bar -->
+      <div class="search-bar">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          type="text"
+          placeholder="Search trailers by name, type, or description..."
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="onSearch()"
+        >
+        <button class="search-btn" (click)="onSearch()">Search</button>
+      </div>
+    </div>
 
     <div class="main-list-layout">
+
+      <!-- Filter Sidebar -->
       <div class="filter-sidebar">
-        <h2>🔍 Filter Trailers</h2>
+        <div class="filter-header">
+          <h2>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            </svg>
+            Filters
+          </h2>
+        </div>
+
         <form (ngSubmit)="applyFilters()">
           <div class="filter-group">
-            <label for="location">Location:</label>
+            <label for="location">Location</label>
             <select
               id="location"
               name="location"
@@ -15,35 +45,36 @@
               class="form-control"
             >
               <option value="">All Locations</option>
-              @for (location of availableLocations; track location) {
+              @for (location of availableLocations(); track location) {
                 <option [value]="location">{{ location }}</option>
               }
             </select>
           </div>
 
           <div class="filter-group">
-            <label for="type">Trailer Type:</label>
+            <label for="type">Trailer Type</label>
             <select id="type" name="type" [(ngModel)]="selectedType" class="form-control">
               <option value="">All Types</option>
-              @for (type of availableTypes; track type) {
+              @for (type of availableTypes(); track type) {
                 <option [value]="type">{{ type }}</option>
               }
             </select>
           </div>
 
           <div class="filter-group">
-            <label>Price Range ($/day):</label>
+            <label>Price Range ($/day)</label>
             <div class="price-input-group">
               <input
                 type="number"
-                placeholder="Min Price"
+                placeholder="Min"
                 [(ngModel)]="minPrice"
                 name="minPrice"
                 class="form-control"
               />
+              <span class="price-separator">-</span>
               <input
                 type="number"
-                placeholder="Max Price"
+                placeholder="Max"
                 [(ngModel)]="maxPrice"
                 name="maxPrice"
                 class="form-control"
@@ -54,13 +85,15 @@
           <div class="filter-actions">
             <button type="submit" class="btn btn-primary btn-block">Apply Filters</button>
             <button type="button" (click)="clearFilters()" class="btn btn-outline btn-block">
-              Clear Filters
+              Clear All
             </button>
           </div>
         </form>
       </div>
 
+      <!-- Trailer Grid -->
       <div class="trailer-grid-wrapper">
+
         @if (isLoading()) {
           <div class="loading-state">
             <div class="loading-spinner"></div>
@@ -69,11 +102,21 @@
         }
 
         @if (!isLoading()) {
-          <p class="result-count">Showing {{ filteredTrailers().length }} results</p>
+          <div class="results-header">
+            <p class="result-count">
+              <strong>{{ filteredTrailers().length }}</strong> trailers available
+            </p>
+          </div>
 
           @if (filteredTrailers().length === 0) {
             <div class="no-results">
-              <p>Sorry, no trailers match your current filters. Try adjusting your selections.</p>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <h3>No trailers found</h3>
+              <p>Try adjusting your filters or search terms</p>
+              <button class="btn btn-primary" (click)="clearFilters()">Clear Filters</button>
             </div>
           }
 
@@ -82,17 +125,39 @@
               @for (trailer of filteredTrailers(); track trailer.id) {
                 <div class="trailer-card">
                   <div class="card-image-wrapper">
-                    <img [src]="trailer.imageUrl || 'assets/default-trailer.jpg'" [alt]="trailer.name">
+                    <img [src]="trailer.imageUrl" [alt]="trailer.name" loading="lazy">
+                    <span class="type-badge">{{ trailer.type }}</span>
                   </div>
 
                   <div class="card-content">
-                    <h3>{{ trailer.name || trailer.title }}</h3>
-                    <p class="tagline">{{ trailer.description | slice : 0 : 70 }}...</p>
+                    <div class="card-header">
+                      <h3>{{ trailer.name }}</h3>
+                      <div class="location">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                          <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                        {{ trailer.location }}
+                      </div>
+                    </div>
 
-                    <ul class="quick-specs">
-                      <li><span>Type:</span> {{ trailer.type }}</li>
-                      <li><span>Location:</span> {{ trailer.location }}</li>
-                    </ul>
+                    <p class="tagline">{{ trailer.tagline }}</p>
+
+                    <div class="specs-row">
+                      <div class="spec">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        </svg>
+                        {{ trailer.size }}
+                      </div>
+                      <div class="spec">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                          <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                        {{ trailer.capacity | number }} lbs
+                      </div>
+                    </div>
 
                     <div class="card-footer">
                       <div class="price-display">
@@ -102,7 +167,7 @@
 
                       <div class="card-buttons">
                         <a [routerLink]="['/trailers', trailer.id]" class="btn btn-outline btn-small">
-                          View Details
+                          Details
                         </a>
                         <a [routerLink]="['/booking']" [queryParams]="{ trailerId: trailer.id }" class="btn btn-primary btn-small">
                           Book Now

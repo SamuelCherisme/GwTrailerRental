@@ -6,13 +6,16 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 
 interface Trailer {
   id: number;
-  title: string;
   name: string;
+  title: string;
   location: string;
   type: string;
   price: number;
   dailyRate: number;
   description: string;
+  tagline: string;
+  size: string;
+  capacity: number;
   imageUrl: string;
 }
 
@@ -28,18 +31,35 @@ export class TrailersList implements OnInit {
   filteredTrailers = signal<Trailer[]>([]);
   isLoading = signal(true);
 
-  availableLocations: string[] = ['Atlanta', 'Dallas', 'Miami'];
-  availableTypes: string[] = ['Utility', 'Flatbed', 'Enclosed'];
+  availableLocations = signal<string[]>([]);
+  availableTypes = signal<string[]>([]);
 
   selectedLocation: string = '';
   selectedType: string = '';
   minPrice: number | null = null;
   maxPrice: number | null = null;
+  searchTerm: string = '';
 
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
+    this.fetchLocations();
+    this.fetchTypes();
     this.fetchTrailers();
+  }
+
+  fetchLocations(): void {
+    this.http.get<string[]>('http://localhost:3000/api/locations').subscribe({
+      next: (data) => this.availableLocations.set(data),
+      error: (err) => console.error('Error fetching locations:', err)
+    });
+  }
+
+  fetchTypes(): void {
+    this.http.get<string[]>('http://localhost:3000/api/types').subscribe({
+      next: (data) => this.availableTypes.set(data),
+      error: (err) => console.error('Error fetching types:', err)
+    });
   }
 
   fetchTrailers(): void {
@@ -50,6 +70,7 @@ export class TrailersList implements OnInit {
     if (this.selectedType) params = params.set('type', this.selectedType);
     if (this.minPrice) params = params.set('minPrice', this.minPrice.toString());
     if (this.maxPrice) params = params.set('maxPrice', this.maxPrice.toString());
+    if (this.searchTerm) params = params.set('search', this.searchTerm);
 
     this.http.get<Trailer[]>('http://localhost:3000/api/trailers', { params })
       .subscribe({
@@ -76,6 +97,11 @@ export class TrailersList implements OnInit {
     this.selectedType = '';
     this.minPrice = null;
     this.maxPrice = null;
+    this.searchTerm = '';
+    this.fetchTrailers();
+  }
+
+  onSearch(): void {
     this.fetchTrailers();
   }
 }
