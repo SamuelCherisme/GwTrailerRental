@@ -1,6 +1,10 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend only if API key exists
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
+
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:4200';
 
 interface EmailOptions {
@@ -9,8 +13,19 @@ interface EmailOptions {
   html: string;
 }
 
+
 // Base email sender
 const sendEmail = async (options: EmailOptions): Promise<boolean> => {
+  // If no API key, log and return success (for development)
+  if (!resend) {
+    console.log('📧 ===== EMAIL SERVICE (Dev Mode) =====');
+    console.log('📧 To:', options.to);
+    console.log('📧 Subject:', options.subject);
+    console.log('📧 Email service not configured - skipping send');
+    console.log('📧 =====================================');
+    return true;
+  }
+
   try {
     const { data, error } = await resend.emails.send({
       from: 'GW Rentals <onboarding@resend.dev>', // Use your domain after verifying in Resend
@@ -35,6 +50,12 @@ const sendEmail = async (options: EmailOptions): Promise<boolean> => {
 // Send verification email
 export const sendVerificationEmail = async (email: string, name: string, token: string): Promise<boolean> => {
   const verificationUrl = `${FRONTEND_URL}/verify-email?token=${token}`;
+
+  // Log token in dev mode for easy testing
+  if (!resend) {
+    console.log('📧 Verification Token:', token);
+    console.log('📧 Verification URL:', verificationUrl);
+  }
 
   const html = `
     <!DOCTYPE html>
@@ -100,6 +121,12 @@ export const sendVerificationEmail = async (email: string, name: string, token: 
 // Send password reset email
 export const sendPasswordResetEmail = async (email: string, name: string, token: string): Promise<boolean> => {
   const resetUrl = `${FRONTEND_URL}/reset-password?token=${token}`;
+
+  // Log token in dev mode for easy testing
+  if (!resend) {
+    console.log('📧 Reset Token:', token);
+    console.log('📧 Reset URL:', resetUrl);
+  }
 
   const html = `
     <!DOCTYPE html>

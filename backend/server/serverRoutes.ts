@@ -1,3 +1,5 @@
+// server/serverRoutes.ts
+
 import { Router } from 'express';
 import {
   register,
@@ -18,7 +20,28 @@ import {
   checkAvailability,
   getUnavailableDates
 } from './controllers/booking.controller';
+import {
+  createCheckoutSession,
+  verifyPayment,
+  stripeWebhook,
+  getPaymentDetails,
+  refundPayment
+} from './controllers/payment.controller';
+import {
+  getDashboardStats,
+  getAllUsers,
+  getUserById,
+  updateUser,
+  deleteUser,
+  getAllBookings,
+  getBookingById,
+  updateBookingStatus,
+  getAllTrailers,
+  getRevenueReport,
+  makeAdmin
+} from './controllers/admin.controller';
 import { protect } from './middleware/auth.middleware';
+import { isAdmin } from './middleware/admin.middleware';
 import { trailers, getTrailerById, getLocations, getTypes } from './data/trailers';
 
 const router = Router();
@@ -29,11 +52,13 @@ const router = Router();
 router.get('/', (req, res) => {
   res.json({
     message: 'GW Rentals API is running',
-    version: '1.0.0',
+    version: '2.0.0',
     endpoints: {
       auth: '/api/auth/*',
       trailers: '/api/trailers',
-      bookings: '/api/bookings'
+      bookings: '/api/bookings',
+      payments: '/api/payments',
+      admin: '/api/admin/*'
     }
   });
 });
@@ -58,31 +83,26 @@ router.get('/api/trailers', (req, res) => {
   let filtered = [...trailers];
   const { location, type, minPrice, maxPrice, search } = req.query;
 
-  // Filter by location
   if (location) {
     filtered = filtered.filter(t =>
       t.location.toLowerCase() === (location as string).toLowerCase()
     );
   }
 
-  // Filter by type
   if (type) {
     filtered = filtered.filter(t =>
       t.type.toLowerCase() === (type as string).toLowerCase()
     );
   }
 
-  // Filter by min price
   if (minPrice) {
     filtered = filtered.filter(t => t.price >= Number(minPrice));
   }
 
-  // Filter by max price
   if (maxPrice) {
     filtered = filtered.filter(t => t.price <= Number(maxPrice));
   }
 
-  // Search by name or description
   if (search) {
     const searchTerm = (search as string).toLowerCase();
     filtered = filtered.filter(t =>
@@ -95,7 +115,6 @@ router.get('/api/trailers', (req, res) => {
   res.json(filtered);
 });
 
-// Get single trailer
 router.get('/api/trailers/:id', (req, res) => {
   const id = Number(req.params.id);
   const trailer = getTrailerById(id);
@@ -107,12 +126,10 @@ router.get('/api/trailers/:id', (req, res) => {
   res.json(trailer);
 });
 
-// Get available locations
 router.get('/api/locations', (req, res) => {
   res.json(getLocations());
 });
 
-// Get available types
 router.get('/api/types', (req, res) => {
   res.json(getTypes());
 });
@@ -128,6 +145,41 @@ router.get('/api/availability', checkAvailability);
 router.get('/api/trailers/:trailerId/unavailable-dates', getUnavailableDates);
 
 // ============================================
+// PAYMENT ROUTES
+// ============================================
+router.post('/api/payments/create-checkout-session', protect, createCheckoutSession);
+router.post('/api/payments/verify', protect, verifyPayment);
+router.get('/api/payments/:paymentIntentId', protect, getPaymentDetails);
+
+// ============================================
+// ADMIN ROUTES (Protected + Admin Only)
+// ============================================
+router.get('/api/admin/dashboard', protect, isAdmin, getDashboardStats);
+
+// User management
+router.get('/api/admin/users', protect, isAdmin, getAllUsers);
+router.get('/api/admin/users/:id', protect, isAdmin, getUserById);
+router.put('/api/admin/users/:id', protect, isAdmin, updateUser);
+router.delete('/api/admin/users/:id', protect, isAdmin, deleteUser);
+
+// Booking management
+router.get('/api/admin/bookings', protect, isAdmin, getAllBookings);
+router.get('/api/admin/bookings/:id', protect, isAdmin, getBookingById);
+router.patch('/api/admin/bookings/:id/status', protect, isAdmin, updateBookingStatus);
+
+// Trailer management
+router.get('/api/admin/trailers', protect, isAdmin, getAllTrailers);
+
+// Payment management
+router.post('/api/admin/payments/refund', protect, isAdmin, refundPayment);
+
+// Reports
+router.get('/api/admin/reports/revenue', protect, isAdmin, getRevenueReport);
+
+// Make admin (for initial setup - remove in production)
+router.post('/api/admin/make-admin', protect, isAdmin, makeAdmin);
+
+// ============================================
 // CONTACT ROUTE
 // ============================================
 router.post('/api/contact', (req, res) => {
@@ -135,15 +187,7 @@ router.post('/api/contact', (req, res) => {
   res.status(200).json({ success: true, message: 'Message received' });
 });
 
-// ============================================
-// PROTECTED ROUTE EXAMPLE
-// ============================================
-router.get('/api/protected', protect, (req, res) => {
-  res.json({
-    success: true,
-    message: 'You have access to this protected route',
-    user: req.user
-  });
-});
-
 export default router;
+
+// Export webhook handler separately (needs raw body - handled in server.ts)
+export { stripeWebhook };

@@ -11,6 +11,9 @@ export interface IBooking {
   pricePerDay: number;
   totalPrice: number;
   status: 'pending' | 'confirmed' | 'active' | 'completed' | 'cancelled';
+  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
+  stripeSessionId?: string;
+  stripePaymentId?: string;
   pickupLocation: string;
   dropoffLocation: string;
   notes?: string;
@@ -59,6 +62,17 @@ const bookingSchema = new mongoose.Schema(
       enum: ['pending', 'confirmed', 'active', 'completed', 'cancelled'],
       default: 'pending'
     },
+    paymentStatus: {
+      type: String,
+      enum: ['pending', 'paid', 'failed', 'refunded'],
+      default: 'pending'
+    },
+    stripeSessionId: {
+      type: String
+    },
+    stripePaymentId: {
+      type: String
+    },
     pickupLocation: {
       type: String,
       required: [true, 'Pickup location is required']
@@ -77,9 +91,11 @@ const bookingSchema = new mongoose.Schema(
   }
 );
 
-// Index for faster queries
+// Indexes
 bookingSchema.index({ user: 1, status: 1 });
 bookingSchema.index({ trailer: 1, startDate: 1, endDate: 1 });
+bookingSchema.index({ paymentStatus: 1 });
+bookingSchema.index({ stripeSessionId: 1 });
 
 // Check for overlapping bookings
 bookingSchema.statics.checkAvailability = async function (

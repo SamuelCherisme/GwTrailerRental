@@ -1,5 +1,5 @@
 <div class="my-bookings-page">
-  <div class="bookings-container">
+  <div class="container">
 
     <!-- Header -->
     <div class="page-header">
@@ -7,165 +7,222 @@
         <h1>My Bookings</h1>
         <p>View and manage your trailer rentals</p>
       </div>
-      <a routerLink="/trailers" class="btn btn-primary">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="12" y1="5" x2="12" y2="19"/>
-          <line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        New Booking
-      </a>
+      <a routerLink="/trailers" class="btn btn-primary">Book New Trailer</a>
     </div>
 
     <!-- Filters -->
-    <div class="filters-bar">
-      <button
-        *ngFor="let filter of filters"
-        class="filter-btn"
-        [class.active]="activeFilter === filter.key"
-        (click)="setFilter(filter.key)"
-      >
-        {{ filter.label }}
-        <span class="filter-count" *ngIf="getFilterCount(filter.key) > 0">
-          {{ getFilterCount(filter.key) }}
-        </span>
+    <div class="filters">
+      <button class="filter-btn" [class.active]="activeFilter() === 'all'" (click)="applyFilter('all')">
+        All
+      </button>
+      <button class="filter-btn" [class.active]="activeFilter() === 'pending'" (click)="applyFilter('pending')">
+        Pending Payment
+      </button>
+      <button class="filter-btn" [class.active]="activeFilter() === 'confirmed'" (click)="applyFilter('confirmed')">
+        Confirmed
+      </button>
+      <button class="filter-btn" [class.active]="activeFilter() === 'active'" (click)="applyFilter('active')">
+        Active
+      </button>
+      <button class="filter-btn" [class.active]="activeFilter() === 'completed'" (click)="applyFilter('completed')">
+        Completed
+      </button>
+      <button class="filter-btn" [class.active]="activeFilter() === 'cancelled'" (click)="applyFilter('cancelled')">
+        Cancelled
       </button>
     </div>
 
     <!-- Loading -->
-    <div *ngIf="isLoading()" class="loading-state">
-      <div class="loading-spinner"></div>
-      <p>Loading your bookings...</p>
-    </div>
-
-    <!-- Error -->
-    <div *ngIf="error" class="error-state">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-      <h3>{{ error }}</h3>
-      <button class="btn btn-secondary" (click)="loadBookings()">Try Again</button>
-    </div>
-
-    <!-- Empty State -->
-    <div *ngIf="!isLoading() && !error && filteredBookings.length === 0" class="empty-state">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="1" y="3" width="15" height="13"/>
-        <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-        <circle cx="5.5" cy="18.5" r="2.5"/>
-        <circle cx="18.5" cy="18.5" r="2.5"/>
-      </svg>
-      <h3 *ngIf="activeFilter === 'all'">No bookings yet</h3>
-      <h3 *ngIf="activeFilter !== 'all'">No {{ activeFilter }} bookings</h3>
-      <p *ngIf="activeFilter === 'all'">Start by browsing our available trailers</p>
-      <a routerLink="/trailers" class="btn btn-primary" *ngIf="activeFilter === 'all'">Browse Trailers</a>
-      <button class="btn btn-secondary" *ngIf="activeFilter !== 'all'" (click)="setFilter('all')">View All Bookings</button>
-    </div>
+    @if (isLoading()) {
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Loading your bookings...</p>
+      </div>
+    }
 
     <!-- Bookings List -->
-    <div *ngIf="!isLoading() && !error && filteredBookings.length > 0" class="bookings-list">
-      <div class="booking-card" *ngFor="let booking of filteredBookings">
-
-        <!-- Card Header -->
-        <div class="booking-header">
-          <div class="trailer-info">
-            <div class="trailer-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="1" y="3" width="15" height="13"/>
-                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-                <circle cx="5.5" cy="18.5" r="2.5"/>
-                <circle cx="18.5" cy="18.5" r="2.5"/>
-              </svg>
-            </div>
-            <div>
-              <h3>{{ booking.trailerTitle }}</h3>
-              <p>{{ booking.trailerDetails?.type || 'Trailer' }} • {{ booking.pickupLocation }}</p>
-            </div>
+    @if (!isLoading()) {
+      @if (filteredBookings().length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
           </div>
-          <span class="status-badge" [ngClass]="getStatusClass(booking.status)">
-            {{ booking.status }}
-          </span>
+          <h3>No bookings found</h3>
+          <p>You haven't made any bookings yet, or no bookings match your filter.</p>
+          <a routerLink="/trailers" class="btn btn-primary">Browse Trailers</a>
         </div>
+      }
 
-        <!-- Card Body -->
-        <div class="booking-body">
-          <div class="booking-dates">
-            <div class="date-item">
-              <span class="date-label">Pickup</span>
-              <span class="date-value">{{ formatDate(booking.startDate) }}</span>
-            </div>
-            <div class="date-arrow">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="5" y1="12" x2="19" y2="12"/>
-                <polyline points="12 5 19 12 12 19"/>
-              </svg>
-            </div>
-            <div class="date-item">
-              <span class="date-label">Return</span>
-              <span class="date-value">{{ formatDate(booking.endDate) }}</span>
-            </div>
-          </div>
+      @if (filteredBookings().length > 0) {
+        <div class="bookings-list">
+          @for (booking of filteredBookings(); track booking._id) {
+            <div class="booking-card" [class.pending-payment]="booking.status === 'pending'">
 
-          <div class="booking-details">
-            <div class="detail">
-              <span class="detail-label">Duration</span>
-              <span class="detail-value">{{ booking.totalDays }} day{{ booking.totalDays > 1 ? 's' : '' }}</span>
+              <!-- Pending Payment Banner -->
+              @if (booking.status === 'pending') {
+                <div class="payment-banner">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                  <span>Payment required to confirm this booking</span>
+                </div>
+              }
+
+              <div class="card-content">
+                <div class="card-main">
+                  <!-- Trailer Info -->
+                  <div class="trailer-info">
+                    <div class="trailer-image">
+                      @if (booking.trailerDetails?.imageUrl) {
+                        <img [src]="booking.trailerDetails.imageUrl" [alt]="booking.trailerTitle">
+                      } @else {
+                        <div class="image-placeholder">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="1" y="3" width="15" height="13"/>
+                            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                          </svg>
+                        </div>
+                      }
+                    </div>
+                    <div class="trailer-details">
+                      <h3>{{ booking.trailerTitle }}</h3>
+                      <span class="status-badge" [ngClass]="getStatusClass(booking.status)">
+                        {{ booking.status }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Booking Details -->
+                  <div class="booking-details">
+                    <div class="detail-row">
+                      <span class="label">Dates</span>
+                      <span class="value">{{ formatDate(booking.startDate) }} → {{ formatDate(booking.endDate) }}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="label">Duration</span>
+                      <span class="value">{{ booking.totalDays }} day{{ booking.totalDays > 1 ? 's' : '' }}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="label">Pickup</span>
+                      <span class="value">{{ booking.pickupLocation }}</span>
+                    </div>
+                    <div class="detail-row">
+                      <span class="label">Return</span>
+                      <span class="value">{{ booking.dropoffLocation }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Price -->
+                  <div class="booking-price">
+                    <span class="price-label">Total</span>
+                    <span class="price-value">{{ formatCurrency(booking.totalPrice) }}</span>
+                    <span class="price-breakdown">{{ formatCurrency(booking.pricePerDay) }}/day × {{ booking.totalDays }} days</span>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="card-actions">
+                  @if (booking.status === 'pending') {
+                    <button class="btn btn-primary btn-pay"
+                            (click)="payNow(booking)"
+                            [disabled]="isPaymentLoading() === booking._id">
+                      @if (isPaymentLoading() === booking._id) {
+                        <span class="btn-spinner"></span>
+                        Processing...
+                      } @else {
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                          <line x1="1" y1="10" x2="23" y2="10"/>
+                        </svg>
+                        Pay Now
+                      }
+                    </button>
+                    <button class="btn btn-outline" (click)="openCancelModal(booking)">
+                      Cancel Booking
+                    </button>
+                  }
+
+                  @if (booking.status === 'confirmed') {
+                    <div class="confirmed-badge">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                      </svg>
+                      Payment Confirmed
+                    </div>
+                    <button class="btn btn-outline btn-small" (click)="openCancelModal(booking)">
+                      Cancel
+                    </button>
+                  }
+
+                  @if (booking.status === 'active') {
+                    <div class="active-badge">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                      </svg>
+                      Rental in Progress
+                    </div>
+                  }
+
+                  @if (booking.status === 'completed') {
+                    <a routerLink="/trailers" class="btn btn-outline">
+                      Book Again
+                    </a>
+                  }
+                </div>
+              </div>
+
+              <!-- Booking ID -->
+              <div class="card-footer">
+                <span class="booking-id">Booking #{{ booking._id.slice(-8).toUpperCase() }}</span>
+                <span class="booking-date">Booked on {{ formatDate(booking.createdAt) }}</span>
+              </div>
             </div>
-            <div class="detail">
-              <span class="detail-label">Total</span>
-              <span class="detail-value price">{{ formatCurrency(booking.totalPrice) }}</span>
-            </div>
-          </div>
+          }
         </div>
-
-        <!-- Card Footer -->
-        <div class="booking-footer">
-          <span class="booking-id">Booking #{{ booking._id.slice(-8).toUpperCase() }}</span>
-          <div class="booking-actions">
-            <button
-              *ngIf="canCancel(booking)"
-              class="btn btn-cancel"
-              (click)="openCancelModal(booking)"
-            >
-              Cancel
-            </button>
-            <a [routerLink]="['/bookings', booking._id]" class="btn btn-details">
-              View Details
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Cancel Modal -->
-  <div class="modal-overlay" *ngIf="showCancelModal" (click)="closeCancelModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>Cancel Booking</h3>
-        <button class="modal-close" (click)="closeCancelModal()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"/>
-            <line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>Are you sure you want to cancel this booking?</p>
-        <div class="modal-booking-info" *ngIf="bookingToCancel">
-          <strong>{{ bookingToCancel.trailerTitle }}</strong>
-          <span>{{ formatDate(bookingToCancel.startDate) }} - {{ formatDate(bookingToCancel.endDate) }}</span>
-        </div>
-        <p class="modal-warning">This action cannot be undone.</p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="closeCancelModal()">Keep Booking</button>
-        <button class="btn btn-danger" (click)="confirmCancel()" [disabled]="isCancelling()">
-          <span *ngIf="!isCancelling()">Yes, Cancel</span>
-          <span *ngIf="isCancelling()" class="loading-spinner-small"></span>
-        </button>
-      </div>
-    </div>
+      }
+    }
   </div>
 </div>
+
+<!-- Cancel Modal -->
+@if (showCancelModal()) {
+  <div class="modal-overlay" (click)="closeCancelModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2>Cancel Booking?</h2>
+      <p>Are you sure you want to cancel this booking for <strong>{{ bookingToCancel()?.trailerTitle }}</strong>?</p>
+
+      @if (bookingToCancel()?.paymentId) {
+        <div class="refund-notice">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span>A refund will be processed to your original payment method.</span>
+        </div>
+      }
+
+      <div class="modal-actions">
+        <button class="btn btn-outline" (click)="closeCancelModal()" [disabled]="isCancelling()">
+          Keep Booking
+        </button>
+        <button class="btn btn-danger" (click)="confirmCancel()" [disabled]="isCancelling()">
+          @if (isCancelling()) {
+            Cancelling...
+          } @else {
+            Yes, Cancel
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

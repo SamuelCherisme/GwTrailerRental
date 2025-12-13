@@ -1,0 +1,120 @@
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-header">
+      <span class="logo-icon">GW</span>
+      <span class="logo-text">Admin</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a routerLink="/admin" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        <span>Dashboard</span>
+      </a>
+      <a routerLink="/admin/bookings" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        </svg>
+        <span>Bookings</span>
+      </a>
+      <a routerLink="/admin/users" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        </svg>
+        <span>Users</span>
+      </a>
+      <a routerLink="/admin/trailers" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="1" y="3" width="15" height="13"/>
+        </svg>
+        <span>Trailers</span>
+      </a>
+      <a routerLink="/admin/payments" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+        </svg>
+        <span>Payments</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a routerLink="/" class="nav-item">← Back to Site</a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <header class="admin-header">
+      <h1>Bookings</h1>
+    </header>
+
+    <div class="admin-content">
+      <!-- Filters -->
+      <div class="filters-bar">
+        <select [(ngModel)]="statusFilter" (change)="loadBookings()" class="filter-select">
+          <option value="all">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="active">Active</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <div class="search-group">
+          <input type="text" [(ngModel)]="searchTerm" placeholder="Search..." class="filter-input" (keyup.enter)="loadBookings()">
+          <button class="btn btn-primary" (click)="loadBookings()">Search</button>
+        </div>
+      </div>
+
+      @if (isLoading()) {
+        <div class="loading-state"><div class="loading-spinner"></div></div>
+      }
+
+      @if (!isLoading() && bookings().length > 0) {
+        <div class="section-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Trailer</th>
+                <th>Dates</th>
+                <th>Total</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (booking of bookings(); track booking._id) {
+                <tr>
+                  <td>#{{ booking._id.slice(-6).toUpperCase() }}</td>
+                  <td>
+                    <div class="customer-cell">
+                      <span class="customer-name">{{ booking.user?.name || 'N/A' }}</span>
+                      <span class="customer-email">{{ booking.user?.email || '' }}</span>
+                    </div>
+                  </td>
+                  <td>{{ booking.trailerTitle }}</td>
+                  <td>{{ formatDate(booking.startDate) }} - {{ formatDate(booking.endDate) }}</td>
+                  <td>{{ formatCurrency(booking.totalPrice) }}</td>
+                  <td>
+                    <select [value]="booking.status" (change)="updateStatus(booking._id, $event)" class="status-select" [ngClass]="'status-' + booking.status">
+                      <option value="pending">Pending</option>
+                      <option value="confirmed">Confirmed</option>
+                      <option value="active">Active</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      @if (!isLoading() && bookings().length === 0) {
+        <div class="section-card"><p class="no-data">No bookings found</p></div>
+      }
+    </div>
+  </main>
+</div>

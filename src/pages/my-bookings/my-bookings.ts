@@ -1,8 +1,26 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
+import { BookingService } from '../../app/booking.service';
+import { PaymentService } from '../../app/payment.service';
 import { AuthService } from '../../app/auth.service';
-import { BookingService, Booking } from '../../app/booking.service';
+
+interface Booking {
+  _id: string;
+  trailer: number;
+  trailerTitle: string;
+  trailerDetails?: any;
+  startDate: string;
+  endDate: string;
+  totalDays: number;
+  pricePerDay: number;
+  totalPrice: number;
+  status: string;
+  pickupLocation: string;
+  dropoffLocation: string;
+  paymentId?: string;
+  createdAt: string;
+}
 
 @Component({
   selector: 'app-my-bookings',
@@ -12,109 +30,100 @@ import { BookingService, Booking } from '../../app/booking.service';
   styleUrls: ['./my-bookings.css']
 })
 export class MyBookings implements OnInit {
-  bookings: Booking[] = [];
-  filteredBookings: Booking[] = [];
+  bookings = signal<Booking[]>([]);
+  filteredBookings = signal<Booking[]>([]);
   isLoading = signal(true);
-  error: string | null = null;
+  activeFilter = signal('all');
 
-  activeFilter = 'all';
-  filters = [
-    { key: 'all', label: 'All Bookings' },
-    { key: 'pending', label: 'Pending' },
-    { key: 'confirmed', label: 'Confirmed' },
-    { key: 'active', label: 'Active' },
-    { key: 'completed', label: 'Completed' },
-    { key: 'cancelled', label: 'Cancelled' }
-  ];
-
-  // Cancel modal
-  showCancelModal = false;
-  bookingToCancel: Booking | null = null;
+  showCancelModal = signal(false);
+  bookingToCancel = signal<Booking | null>(null);
   isCancelling = signal(false);
 
+  isPaymentLoading = signal<string | null>(null);
+
   constructor(
-    public auth: AuthService,
     private bookingService: BookingService,
-    private router: Router
+    private paymentService: PaymentService,
+    public auth: AuthService
   ) {}
 
   ngOnInit() {
-    if (!this.auth.isLoggedIn()) {
-      this.router.navigate(['/login']);
-      return;
-    }
-
     this.loadBookings();
   }
 
   loadBookings() {
     this.isLoading.set(true);
-    this.error = null;
-
-    this.bookingService.getUserBookings().subscribe(response => {
-      this.isLoading.set(false);
-
-      if (response.success) {
-        this.bookings = response.bookings || [];
-        this.applyFilter();
-      } else {
-        this.error = response.message || 'Failed to load bookings';
+    this.bookingService.getUserBookings().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.bookings.set(response.bookings || []);
+          this.applyFilter(this.activeFilter());
+        }
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
       }
     });
   }
 
-  applyFilter() {
-    if (this.activeFilter === 'all') {
-      this.filteredBookings = [...this.bookings];
+  applyFilter(status: string) {
+    this.activeFilter.set(status);
+    if (status === 'all') {
+      this.filteredBookings.set(this.bookings());
     } else {
-      this.filteredBookings = this.bookings.filter(b => b.status === this.activeFilter);
+      this.filteredBookings.set(this.bookings().filter(b => b.status === status));
     }
   }
 
-  setFilter(filter: string) {
-    this.activeFilter = filter;
-    this.applyFilter();
-  }
+  // Pay for pending booking
+  async payNow(booking: Booking) {
+    this.isPaymentLoading.set(booking._id);
+    const result = await this.paymentService.createCheckoutSession(booking._id);
 
-  getFilterCount(filter: string): number {
-    if (filter === 'all') return this.bookings.length;
-    return this.bookings.filter(b => b.status === filter).length;
+    if (!result.success) {
+      alert(result.message || 'Failed to start payment');
+      this.isPaymentLoading.set(null);
+    }
+    // If successful, user will be redirected to Stripe
   }
 
   openCancelModal(booking: Booking) {
-    this.bookingToCancel = booking;
-    this.showCancelModal = true;
+    this.bookingToCancel.set(booking);
+    this.showCancelModal.set(true);
   }
 
   closeCancelModal() {
-    this.showCancelModal = false;
-    this.bookingToCancel = null;
+    this.showCancelModal.set(false);
+    this.bookingToCancel.set(null);
   }
 
   confirmCancel() {
-    if (!this.bookingToCancel) return;
+    const booking = this.bookingToCancel();
+    if (!booking) return;
 
     this.isCancelling.set(true);
-
-    this.bookingService.cancelBooking(this.bookingToCancel._id).subscribe(response => {
-      this.isCancelling.set(false);
-
-      if (response.success) {
-        // Update local state
-        const index = this.bookings.findIndex(b => b._id === this.bookingToCancel?._id);
-        if (index > -1) {
-          this.bookings[index].status = 'cancelled';
+    this.bookingService.cancelBooking(booking._id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.loadBookings();
+          this.closeCancelModal();
         }
-        this.applyFilter();
-        this.closeCancelModal();
-      } else {
-        alert(response.message || 'Failed to cancel booking');
+        this.isCancelling.set(false);
+      },
+      error: () => {
+        this.isCancelling.set(false);
       }
     });
   }
 
-  formatDate(dateString: string): string {
-    return this.bookingService.formatDate(dateString);
+  formatDate(date: string): string {
+    return new Date(date).toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
   }
 
   formatCurrency(amount: number): string {
@@ -125,10 +134,13 @@ export class MyBookings implements OnInit {
   }
 
   getStatusClass(status: string): string {
-    return this.bookingService.getStatusClass(status);
-  }
-
-  canCancel(booking: Booking): boolean {
-    return ['pending', 'confirmed'].includes(booking.status);
+    const classes: { [key: string]: string } = {
+      pending: 'status-pending',
+      confirmed: 'status-confirmed',
+      active: 'status-active',
+      completed: 'status-completed',
+      cancelled: 'status-cancelled'
+    };
+    return classes[status] || 'status-pending';
   }
 }

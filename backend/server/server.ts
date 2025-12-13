@@ -1,51 +1,50 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+// Now safe to import other modules that use env vars
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
-import serverRoutes from './serverRoutes';
+import routes, { stripeWebhook } from './serverRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// MIDDLEWARE
+// Stripe webhook needs raw body - must be before other middleware
+app.post('/api/webhook/stripe',
+  express.raw({ type: 'application/json' }),
+  stripeWebhook
+);
+
+// Regular middleware
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:4200',
   credentials: true
 }));
-
 app.use(express.json());
 app.use(cookieParser());
 
-// ROUTES
-app.use(serverRoutes);
+// Routes
+app.use(routes);
 
-// DATABASE CONNECTION
-const connectDB = async () => {
+// Connect to MongoDB and start server
+const startServer = async () => {
   try {
-    const mongoUri = process.env.MONGODB_URI;
+    await mongoose.connect(process.env.MONGODB_URI!);
+    console.log('✅ Connected to MongoDB');
 
-    if (!mongoUri) {
-      throw new Error('MONGODB_URI is not defined in environment variables');
-    }
+    // Log config status
+    console.log('📧 Email service:', process.env.RESEND_API_KEY ? 'Configured' : 'Not configured (dev mode)');
+    console.log('💳 Stripe:', process.env.STRIPE_SECRET_KEY ? 'Configured' : 'Not configured');
 
-    await mongoose.connect(mongoUri);
-    console.log('✅ MongoDB connected successfully');
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+    });
   } catch (error) {
-    console.error('❌ MongoDB connection error:', error);
+    console.error('❌ Failed to connect to MongoDB:', error);
     process.exit(1);
   }
-};
-
-// START SERVER
-const startServer = async () => {
-  await connectDB();
-
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-  });
 };
 
 startServer();
