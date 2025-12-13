@@ -79,7 +79,8 @@ export const register = async (req: Request, res: Response) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        isVerified: user.isVerified
+        isVerified: user.isVerified,
+        role: user.role || 'user'
       }
     });
   } catch (error: any) {
@@ -168,7 +169,8 @@ export const login = async (req: Request, res: Response) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        isVerified: user.isVerified
+        isVerified: user.isVerified,
+        role: user.role || 'user'
       }
     });
   } catch (error) {
@@ -477,6 +479,7 @@ export const getCurrentUser = async (req: Request, res: Response) => {
         name: user.name,
         email: user.email,
         isVerified: user.isVerified,
+        role: user.role || 'user',
         createdAt: user.createdAt
       }
     });
